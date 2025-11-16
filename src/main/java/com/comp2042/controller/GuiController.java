@@ -1,5 +1,12 @@
-package com.comp2042;
+package com.comp2042.controller;
 
+import com.comp2042.events.EventSource;
+import com.comp2042.events.EventType;
+import com.comp2042.events.MoveEvent;
+import com.comp2042.model.DownData;
+import com.comp2042.view.BoardViewData;
+import com.comp2042.view.GameOverPanel;
+import com.comp2042.view.NotificationPanel;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
@@ -90,7 +97,7 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
     }
 
-    public void initGameView(int[][] boardMatrix, ViewData brick) {
+    public void initGameView(int[][] boardMatrix, BoardViewData brick) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
             for (int j = 0; j < boardMatrix[i].length; j++) {
@@ -157,7 +164,7 @@ public class GuiController implements Initializable {
     }
 
 
-    private void refreshBrick(ViewData brick) {
+    private void refreshBrick(BoardViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
             brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);

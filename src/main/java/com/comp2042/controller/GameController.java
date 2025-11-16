@@ -1,4 +1,9 @@
-package com.comp2042;
+package com.comp2042.controller;
+
+import com.comp2042.events.EventSource;
+import com.comp2042.events.MoveEvent;
+import com.comp2042.model.*;
+import com.comp2042.view.BoardViewData;
 
 public class GameController implements InputEventListener {
 
@@ -39,19 +44,19 @@ public class GameController implements InputEventListener {
     }
 
     @Override
-    public ViewData onLeftEvent(MoveEvent event) {
+    public BoardViewData onLeftEvent(MoveEvent event) {
         board.moveBrickLeft();
         return board.getViewData();
     }
 
     @Override
-    public ViewData onRightEvent(MoveEvent event) {
+    public BoardViewData onRightEvent(MoveEvent event) {
         board.moveBrickRight();
         return board.getViewData();
     }
 
     @Override
-    public ViewData onRotateEvent(MoveEvent event) {
+    public BoardViewData onRotateEvent(MoveEvent event) {
         board.rotateLeftBrick();
         return board.getViewData();
     }

@@ -1,13 +1,15 @@
-package com.comp2042;
+package com.comp2042.view;
 
-public final class ViewData {
+import com.comp2042.model.MatrixOperations;
+
+public final class BoardViewData {
 
     private final int[][] brickData;
     private final int xPosition;
     private final int yPosition;
     private final int[][] nextBrickData;
 
-    public ViewData(int[][] brickData, int xPosition, int yPosition, int[][] nextBrickData) {
+    public BoardViewData(int[][] brickData, int xPosition, int yPosition, int[][] nextBrickData) {
         this.brickData = brickData;
         this.xPosition = xPosition;
         this.yPosition = yPosition;

@@ -1,4 +1,6 @@
-package com.comp2042;
+package com.comp2042.model;
+
+import com.comp2042.view.BoardViewData;
 
 public interface Board {
 
@@ -14,7 +16,7 @@ public interface Board {
 
     int[][] getBoardMatrix();
 
-    ViewData getViewData();
+    BoardViewData getViewData();
 
     void mergeBrickToBackground();
 
