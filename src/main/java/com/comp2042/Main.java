@@ -27,8 +27,8 @@ public class Main extends Application {
         new GameController(c);
     }
 
-
     public static void main(String[] args) {
         launch(args);
     }
+
 }
