@@ -14,5 +14,8 @@ public interface InputEventListener {
 
     BoardViewData onRotateEvent(MoveEvent event);
 
+    BoardViewData getGhostPiece();
+
+
     void createNewGame();
 }

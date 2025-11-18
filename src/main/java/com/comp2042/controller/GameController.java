@@ -1,70 +1,64 @@
 package com.comp2042.controller;
 
-import com.comp2042.events.EventSource;
 import com.comp2042.events.MoveEvent;
-import com.comp2042.model.*;
 import com.comp2042.view.BoardViewData;
+import com.comp2042.model.DownData;
 
+
+/**
+ * Listens to input events, delegates game logic to GameEngine,
+ * and updates the GUI accordingly.
+ */
 public class GameController implements InputEventListener {
 
-    private Board board = new SimpleBoard(25, 10);
+    private final GameEngine engine;
+    private final GuiController gui;
 
-    private final GuiController viewGuiController;
+    /**
+     * Initializes a new GameController with the given GUI controller.
+     *
+     * @param gui the GUI controller to interact with
+     */
+    public GameController(GuiController gui) {
+        this.gui = gui;
+        engine = new GameEngine(25, 10);
 
-    public GameController(GuiController c) {
-        viewGuiController = c;
-        board.createNewBrick();
-        viewGuiController.setEventListener(this);
-        viewGuiController.initGameView(board.getBoardMatrix(), board.getViewData());
-        viewGuiController.bindScore(board.getScore().scoreProperty());
+        gui.setEventListener(this);
+        gui.initGameView(engine.getBoardMatrix(), engine.getViewData());
+        gui.bindScore(engine.getScore().scoreProperty());
     }
 
     @Override
     public DownData onDownEvent(MoveEvent event) {
-        boolean canMove = board.moveBrickDown();
-        ClearRow clearRow = null;
-        if (!canMove) {
-            board.mergeBrickToBackground();
-            clearRow = board.clearRows();
-            if (clearRow.getLinesRemoved() > 0) {
-                board.getScore().add(clearRow.getScoreBonus());
-            }
-            if (board.createNewBrick()) {
-                viewGuiController.gameOver();
-            }
-
-            viewGuiController.refreshGameBackground(board.getBoardMatrix());
-
-        } else {
-            if (event.getEventSource() == EventSource.USER) {
-                board.getScore().add(1);
-            }
-        }
-        return new DownData(clearRow, board.getViewData());
+        DownData data = engine.moveDown(event.getEventSource());
+        gui.refreshGameBackground(engine.getBoardMatrix());
+        if (data.isGameOver()) gui.gameOver();
+        return data;
     }
 
     @Override
     public BoardViewData onLeftEvent(MoveEvent event) {
-        board.moveBrickLeft();
-        return board.getViewData();
+        return engine.moveLeft();
     }
 
     @Override
     public BoardViewData onRightEvent(MoveEvent event) {
-        board.moveBrickRight();
-        return board.getViewData();
+        return engine.moveRight();
     }
 
     @Override
     public BoardViewData onRotateEvent(MoveEvent event) {
-        board.rotateLeftBrick();
-        return board.getViewData();
+        return engine.rotate();
     }
-
 
     @Override
     public void createNewGame() {
-        board.newGame();
-        viewGuiController.refreshGameBackground(board.getBoardMatrix());
+        engine.newGame();
+        gui.refreshGameBackground(engine.getBoardMatrix());
+    }
+    //GhostPiece method added
+    @Override
+    public BoardViewData getGhostPiece() {
+        return engine.getGhostPiece();
     }
 }

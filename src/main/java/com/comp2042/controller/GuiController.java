@@ -26,10 +26,15 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
-
 import java.net.URL;
 import java.util.ResourceBundle;
+import javafx.scene.control.Label;
 
+
+/**
+ * GUI Controller that handles rendering and user input.
+ * Includes ghost piece rendering.
+ */
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
@@ -46,16 +51,17 @@ public class GuiController implements Initializable {
     @FXML
     private GameOverPanel gameOverPanel;
 
+    @FXML
+    private Label scoreLabel;
+
+
     private Rectangle[][] displayMatrix;
-
     private InputEventListener eventListener;
-
     private Rectangle[][] rectangles;
 
     private Timeline timeLine;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
-
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
 
     @Override
@@ -63,32 +69,50 @@ public class GuiController implements Initializable {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
                 if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
+
+                    // left
                     if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
+                        clearGhost();
+                        refreshGhost(eventListener.getGhostPiece());
                         refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
                         keyEvent.consume();
                     }
+
+                    // right
                     if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
+                        clearGhost();
+                        refreshGhost(eventListener.getGhostPiece());
                         refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
                         keyEvent.consume();
                     }
+
+                    // rotate
                     if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
+                        clearGhost();
+                        refreshGhost(eventListener.getGhostPiece());
                         refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
                         keyEvent.consume();
                     }
+
+                    // down
                     if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
                         moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
                         keyEvent.consume();
                     }
                 }
+
+                // new game
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
                 }
             }
         });
+
         gameOverPanel.setVisible(false);
 
         final Reflection reflection = new Reflection();
@@ -119,7 +143,6 @@ public class GuiController implements Initializable {
         }
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
-
 
         timeLine = new Timeline(new KeyFrame(
                 Duration.millis(400),
@@ -163,7 +186,6 @@ public class GuiController implements Initializable {
         return returnPaint;
     }
 
-
     private void refreshBrick(BoardViewData brick) {
         if (isPause.getValue() == Boolean.FALSE) {
             brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
@@ -198,6 +220,9 @@ public class GuiController implements Initializable {
                 groupNotification.getChildren().add(notificationPanel);
                 notificationPanel.showScore(groupNotification.getChildren());
             }
+
+            clearGhost();
+            refreshGhost(eventListener.getGhostPiece());
             refreshBrick(downData.getViewData());
         }
         gamePanel.requestFocus();
@@ -206,8 +231,9 @@ public class GuiController implements Initializable {
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
-
-    public void bindScore(IntegerProperty integerProperty) {
+//Binds score label to game score
+    public void bindScore(IntegerProperty scoreProperty) {
+        scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }
 
     public void gameOver() {
@@ -220,13 +246,53 @@ public class GuiController implements Initializable {
         timeLine.stop();
         gameOverPanel.setVisible(false);
         eventListener.createNewGame();
-        gamePanel.requestFocus();
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
+        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());
+
     }
 
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
+    }
+
+
+    // Ghost piece method
+
+    /** Removes previous ghost from board. */
+    private void clearGhost() {
+        if (displayMatrix == null) return;
+
+        for (int i = 2; i < displayMatrix.length; i++) {
+            for (int j = 0; j < displayMatrix[i].length; j++) {
+                displayMatrix[i][j].setOpacity(1.0);
+            }
+        }
+    }
+
+    /** Draws the ghost piece on the background grid. */
+    public void refreshGhost(BoardViewData ghost) {
+        if (ghost == null || !ghost.isGhost()) return;
+
+        int[][] shape = ghost.getBrickData();
+
+        for (int i = 0; i < shape.length; i++) {
+            for (int j = 0; j < shape[i].length; j++) {
+                if (shape[i][j] != 0) {
+
+                    int boardY = ghost.getyPosition() + i;
+                    int boardX = ghost.getxPosition() + j;
+
+                    if (boardY >= 2 && boardY < displayMatrix.length &&
+                            boardX >= 0 && boardX < displayMatrix[0].length) {
+
+                        Rectangle r = displayMatrix[boardY][boardX];
+                        r.setFill(Color.LIGHTGRAY);
+                        r.setOpacity(0.30);
+                    }
+                }
+            }
+        }
     }
 }
