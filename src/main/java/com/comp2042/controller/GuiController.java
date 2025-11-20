@@ -73,37 +73,47 @@ public class GuiController implements Initializable {
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
-                if (isPause.getValue() == Boolean.FALSE && isGameOver.getValue() == Boolean.FALSE) {
 
-                    // left
-                    if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
-                        clearGhost();
-                        refreshGhost(eventListener.getGhostPiece());
-                        refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
-                        keyEvent.consume();
-                    }
+                // allow pause/unpause
+                if (keyEvent.getCode() == KeyCode.P) {
+                    togglePause();
+                    keyEvent.consume();
+                    return;
+                }
 
-                    // right
-                    if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
-                        clearGhost();
-                        refreshGhost(eventListener.getGhostPiece());
-                        refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
-                        keyEvent.consume();
-                    }
+                //  Stop all movement if paused or game over
+                if (isPause.getValue() || isGameOver.getValue()) {
+                    return;
+                }
 
-                    // rotate
-                    if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
-                        clearGhost();
-                        refreshGhost(eventListener.getGhostPiece());
-                        refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
-                        keyEvent.consume();
-                    }
+                // left
+                if (keyEvent.getCode() == KeyCode.LEFT || keyEvent.getCode() == KeyCode.A) {
+                    clearGhost();
+                    refreshGhost(eventListener.getGhostPiece());
+                    refreshBrick(eventListener.onLeftEvent(new MoveEvent(EventType.LEFT, EventSource.USER)));
+                    keyEvent.consume();
+                }
 
-                    // down
-                    if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
-                        moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
-                        keyEvent.consume();
-                    }
+                // right
+                if (keyEvent.getCode() == KeyCode.RIGHT || keyEvent.getCode() == KeyCode.D) {
+                    clearGhost();
+                    refreshGhost(eventListener.getGhostPiece());
+                    refreshBrick(eventListener.onRightEvent(new MoveEvent(EventType.RIGHT, EventSource.USER)));
+                    keyEvent.consume();
+                }
+
+                // rotate
+                if (keyEvent.getCode() == KeyCode.UP || keyEvent.getCode() == KeyCode.W) {
+                    clearGhost();
+                    refreshGhost(eventListener.getGhostPiece());
+                    refreshBrick(eventListener.onRotateEvent(new MoveEvent(EventType.ROTATE, EventSource.USER)));
+                    keyEvent.consume();
+                }
+
+                // down
+                if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
+                    moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
+                    keyEvent.consume();
                 }
 
                 // new game
@@ -119,6 +129,16 @@ public class GuiController implements Initializable {
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+    }
+
+    private void togglePause() {
+        if (isPause.get()) {
+            timeLine.play();
+            isPause.set(false);
+        } else {
+            timeLine.pause();
+            isPause.set(true);
+        }
     }
 
     public void initGameView(int[][] boardMatrix, BoardViewData brick) {
@@ -231,7 +251,7 @@ public class GuiController implements Initializable {
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
     }
-//Binds score label to game score
+    // Binds score label to game score
     public void bindScore(IntegerProperty scoreProperty) {
         scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }
@@ -249,18 +269,16 @@ public class GuiController implements Initializable {
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
-        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());
+        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData()); }
 
-    }
 
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
     }
 
+    // Ghost piece methods
 
-    // Ghost piece method
-
-    /** Removes previous ghost from board. */
+    /**Removes previous ghost from board*/
     private void clearGhost() {
         if (displayMatrix == null) return;
 
@@ -271,7 +289,7 @@ public class GuiController implements Initializable {
         }
     }
 
-    /** Draws the ghost piece on the background grid. */
+    /**Draws the ghost piece on the background grid. */
     public void refreshGhost(BoardViewData ghost) {
         if (ghost == null || !ghost.isGhost()) return;
 
