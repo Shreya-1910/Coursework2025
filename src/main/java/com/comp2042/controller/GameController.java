@@ -1,12 +1,13 @@
 package com.comp2042.controller;
 
 import com.comp2042.events.MoveEvent;
+import com.comp2042.model.Score;
 import com.comp2042.view.BoardViewData;
 import com.comp2042.model.DownData;
 
 
 /**
- * Listens to input events, delegates game logic to GameEngine,
+ * Listens to input events, delegates game logic to GameEngine
  * and updates the GUI accordingly.
  */
 public class GameController implements InputEventListener {
@@ -16,7 +17,6 @@ public class GameController implements InputEventListener {
 
     /**
      * Initializes a new GameController with the given GUI controller.
-     *
      * @param gui the GUI controller to interact with
      */
     public GameController(GuiController gui) {
@@ -25,8 +25,9 @@ public class GameController implements InputEventListener {
 
         gui.setEventListener(this);
         gui.initGameView(engine.getBoardMatrix(), engine.getViewData());
-        gui.bindScore(engine.getScore().scoreProperty());
+        gui.bindScore(engine.getScoreObject().scoreProperty());
     }
+
 
     @Override
     public DownData onDownEvent(MoveEvent event) {
@@ -61,4 +62,17 @@ public class GameController implements InputEventListener {
     public BoardViewData getGhostPiece() {
         return engine.getGhostPiece();
     }
+//returns score
+    @Override
+    public int getScore() {
+        return engine.getScore();
+    }
+
+//drops brick and updates board
+    @Override
+    public BoardViewData onHardDropEvent(MoveEvent event) {
+        return engine.hardDrop();
+    }
+
+
 }

@@ -29,6 +29,7 @@ import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.control.Label;
+import com.comp2042.model.HighScore;
 
 
 /**
@@ -54,6 +55,21 @@ public class GuiController implements Initializable {
     @FXML
     private Label scoreLabel;
 
+    // next 3 preview panels
+    @FXML
+    private GridPane nextPiece1;
+
+    @FXML
+    private GridPane nextPiece2;
+
+    @FXML
+    private GridPane nextPiece3;
+
+    @FXML
+    private Label highScoreLabel;
+
+
+
 
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
@@ -69,6 +85,9 @@ public class GuiController implements Initializable {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
         gamePanel.setFocusTraversable(true);
         gamePanel.requestFocus();
+        //update high score
+        highScoreLabel.setText("High Score: " + HighScore.load());
+
 
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -120,6 +139,15 @@ public class GuiController implements Initializable {
                 if (keyEvent.getCode() == KeyCode.N) {
                     newGame(null);
                 }
+
+                // hard drop
+                if (keyEvent.getCode() == KeyCode.SPACE) {
+                    eventListener.onHardDropEvent(new MoveEvent(EventType.HARDDROP, EventSource.USER));
+                    keyEvent.consume();
+                }
+
+                highScoreLabel.setText("High Score: " + HighScore.load());
+
             }
         });
 
@@ -215,6 +243,11 @@ public class GuiController implements Initializable {
                     setRectangleData(brick.getBrickData()[i][j], rectangles[i][j]);
                 }
             }
+            if (brick.getNextThreeData() != null) {
+                drawPreview(brick.getNextThreeData().get(0), nextPiece1);
+                drawPreview(brick.getNextThreeData().get(1), nextPiece2);
+                drawPreview(brick.getNextThreeData().get(2), nextPiece3);
+            }
         }
     }
 
@@ -258,9 +291,19 @@ public class GuiController implements Initializable {
 
     public void gameOver() {
         timeLine.stop();
-        gameOverPanel.setVisible(true);
         isGameOver.setValue(Boolean.TRUE);
+
+        int finalScore = eventListener.getScore();
+        HighScore.saveIfHigher(finalScore);
+        highScoreLabel.setText("High Score: " + HighScore.load());
+
+        gameOverPanel.setVisible(true);
     }
+
+
+
+
+
 
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
@@ -269,12 +312,34 @@ public class GuiController implements Initializable {
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
-        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData()); }
+        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());updateHighScoreLabel();}
 
 
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
     }
+
+    private void updateHighScoreLabel() {
+        highScoreLabel.setText("High Score: " + HighScore.load());
+    }
+
+
+    //  draws a preview brick
+    private void drawPreview(int[][] shape, GridPane target) {
+        target.getChildren().clear();
+
+        if (shape == null) return;
+
+        for (int i = 0; i < shape.length; i++) {
+            for (int j = 0; j < shape[i].length; j++) {
+                Rectangle r = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                r.setFill(getFillColor(shape[i][j]));
+
+                target.add(r, j, i);
+            }
+        }
+    }
+
 
     // Ghost piece methods
 

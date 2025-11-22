@@ -29,8 +29,8 @@ public class GameEngine {
 
     /**
      * Moves the current brick down and handles merging, row clearing, and score updates.
-     * @param source source of the event (user or system)
-     * @return DownData containing cleared rows, updated view, and game over flag
+     * @param source source of the event.
+     * @return DownData containing cleared rows, updated view, and game over.
      */
     public DownData moveDown(EventSource source) {
         boolean canMove = board.moveBrickDown();
@@ -109,9 +109,44 @@ public class GameEngine {
      * Returns the Score object for the current game.
      * @return Score object
      */
-    public Score getScore() {
+
+    //score for gui
+    public int getScore() {
+        return board.getScore().scoreProperty().get();
+    }
+//full score data
+    public Score getScoreObject() {
         return board.getScore();
     }
+
+
+
+//HardDrop logic
+    /**
+     * Performs a hard drop. Move the brick down until it cannot move,
+     * then merge it, clear rows, update score and spawn next brick.
+     */
+    public BoardViewData hardDrop() {
+
+    while (board.moveBrickDown()) {
+
+        }
+
+        board.mergeBrickToBackground();
+
+        // Hard drop points
+        board.getScore().add(20);
+
+        ClearRow clearRow = board.clearRows();
+        if (clearRow.getLinesRemoved() > 0) {
+            board.getScore().add(clearRow.getScoreBonus());
+        }
+
+        board.createNewBrick();
+
+        return board.getViewData();
+    }
+
 
 
     //Ghost brick logic
