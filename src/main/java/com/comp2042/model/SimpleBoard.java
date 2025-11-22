@@ -5,8 +5,10 @@ import com.comp2042.logic.bricks.Brick;
 import com.comp2042.logic.bricks.BrickGenerator;
 import com.comp2042.logic.bricks.RandomBrickGenerator;
 import com.comp2042.view.BoardViewData;
+import java.awt.Point;
+import java.util.List;
 
-import java.awt.*;
+
 
 public class SimpleBoard implements Board {
 
@@ -98,7 +100,17 @@ public class SimpleBoard implements Board {
 
     @Override
     public BoardViewData getViewData() {
-        return new BoardViewData(brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY(), brickGenerator.getNextBrick().getShapeMatrix().get(0));
+
+        // get the next three bricks from the generator
+        List<int[][]> nextThreeShapes = brickGenerator.getNextThreeShapes();  // ADDED
+
+        return new BoardViewData(
+                brickRotator.getCurrentShape(),
+                (int) currentOffset.getX(),
+                (int) currentOffset.getY(),
+                brickGenerator.getNextBrick().getShapeMatrix().get(0),
+                brickGenerator.getNextThreeShapes()    //added
+        );
     }
 
     @Override

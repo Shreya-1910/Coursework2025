@@ -16,6 +16,9 @@ public interface InputEventListener {
 
     BoardViewData getGhostPiece();
 
+    BoardViewData onHardDropEvent(MoveEvent event);
+
+    int getScore();
 
     void createNewGame();
 }
