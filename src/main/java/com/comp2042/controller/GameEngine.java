@@ -119,7 +119,10 @@ public class GameEngine {
         return board.getScore();
     }
 
-
+    public BoardViewData hold() {
+        board.holdBrick();
+        return board.getViewData();
+    }
 
 //HardDrop logic
     /**
@@ -170,6 +173,12 @@ public class GameEngine {
         // Return a ghost BoardViewData
         return new BoardViewData(shape, ghostX, ghostY, true); // true = ghost
     }
+
+    public int[][] getHeldShape() {
+        if (board == null) return null;
+        return board.getHeldShape();
+    }
+
 
     /**
      * Checks if a brick shape can be placed at a given board location.

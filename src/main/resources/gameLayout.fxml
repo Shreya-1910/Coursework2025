@@ -68,6 +68,28 @@
 
     </BorderPane>
 
+    <BorderPane fx:id="holdContainer"
+                layoutX="250"
+                layoutY="400"
+                prefWidth="100"
+                prefHeight="100"
+                style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
+
+        <top>
+            <Label text="Hold"
+                   BorderPane.alignment="CENTER"
+                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-padding: 0 0 10 0;"/>
+        </top>
+
+        <center>
+            <GridPane fx:id="holdPiece"
+                      hgap="1" vgap="1"
+                      minWidth="90" minHeight="90"
+                      alignment="CENTER"
+                      style="-fx-border-color: white; -fx-padding: 5;"/>
+        </center>
+    </BorderPane>
+
     <Group fx:id="groupNotification" layoutX="14" layoutY="203">
         <VBox alignment="CENTER">
             <GameOverPanel fx:id="gameOverPanel"/>

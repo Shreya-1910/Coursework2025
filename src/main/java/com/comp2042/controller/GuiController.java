@@ -30,6 +30,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.control.Label;
 import com.comp2042.model.HighScore;
+import javafx.scene.layout.BorderPane;
 
 
 /**
@@ -67,6 +68,10 @@ public class GuiController implements Initializable {
 
     @FXML
     private Label highScoreLabel;
+
+    @FXML private GridPane holdPiece;
+    @FXML private BorderPane holdContainer;
+
 
 
 
@@ -143,6 +148,16 @@ public class GuiController implements Initializable {
                 // hard drop
                 if (keyEvent.getCode() == KeyCode.SPACE) {
                     eventListener.onHardDropEvent(new MoveEvent(EventType.HARDDROP, EventSource.USER));
+                    keyEvent.consume();
+                }
+
+
+                // Hold press 'C'
+                if (keyEvent.getCode() == KeyCode.C) {
+                    // clear and refresh ghost first
+                    clearGhost();
+                    refreshGhost(eventListener.getGhostPiece());
+                    refreshBrick(eventListener.onHoldEvent(new MoveEvent(EventType.HOLD, EventSource.USER)));
                     keyEvent.consume();
                 }
 
@@ -353,6 +368,25 @@ public class GuiController implements Initializable {
             }
         }
     }
+
+    public void updateHoldPiece(int[][] heldShape) {
+        holdPiece.getChildren().clear();
+
+        if (heldShape == null) {
+            return; // nothing to draw
+        }
+
+        for (int i = 0; i < heldShape.length; i++) {
+            for (int j = 0; j < heldShape[i].length; j++) {
+
+                Rectangle r = new Rectangle(BRICK_SIZE, BRICK_SIZE);
+                r.setFill(getFillColor(heldShape[i][j]));
+
+                holdPiece.add(r, j, i);
+            }
+        }
+    }
+
 
     /**Draws the ghost piece on the background grid. */
     public void refreshGhost(BoardViewData ghost) {

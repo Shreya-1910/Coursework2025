@@ -8,8 +8,6 @@ import com.comp2042.view.BoardViewData;
 import java.awt.Point;
 import java.util.List;
 
-
-
 public class SimpleBoard implements Board {
 
     private final int width;
@@ -19,6 +17,10 @@ public class SimpleBoard implements Board {
     private int[][] currentGameMatrix;
     private Point currentOffset;
     private final Score score;
+
+    // Hold
+    private Brick heldBrick = null;          // stores the currently held brick
+    private boolean hasHeldThisTurn = false; // prevents double hold until new brick spawns
 
     public SimpleBoard(int width, int height) {
         this.width = width;
@@ -42,7 +44,6 @@ public class SimpleBoard implements Board {
             return true;
         }
     }
-
 
     @Override
     public boolean moveBrickLeft() {
@@ -90,7 +91,40 @@ public class SimpleBoard implements Board {
         Brick currentBrick = brickGenerator.getBrick();
         brickRotator.setBrick(currentBrick);
         currentOffset = new Point(4, 2); //Changed y value so that game doesn't end mid screen
-        return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        // allows hold after new piece
+
+        hasHeldThisTurn = false;
+
+
+        return MatrixOperations.intersect(currentGameMatrix, brickRotator.getCurrentShape(),
+                (int) currentOffset.getX(), (int) currentOffset.getY());
+    }
+
+
+    // hold feature
+
+    public void holdBrick() {
+        if (hasHeldThisTurn)
+            return; // prevent holding twice
+
+        Brick current = brickRotator.getBrick();
+
+        if (heldBrick == null) {
+            heldBrick = current;
+            createNewBrick();
+        } else {
+            // Swap the current brick with the held one
+            Brick temp = heldBrick;
+            heldBrick = current;
+            brickRotator.setBrick(temp);
+            currentOffset = new Point(4, 2);
+        }
+
+        hasHeldThisTurn = true;
+    }
+
+    public Brick getHeldBrick() {
+        return heldBrick;
     }
 
     @Override
@@ -101,21 +135,25 @@ public class SimpleBoard implements Board {
     @Override
     public BoardViewData getViewData() {
 
-        // get the next three bricks from the generator
-        List<int[][]> nextThreeShapes = brickGenerator.getNextThreeShapes();  // ADDED
+        // get the next three bricks from brick generator
+        List<int[][]> nextThreeShapes = brickGenerator.getNextThreeShapes();
 
         return new BoardViewData(
                 brickRotator.getCurrentShape(),
                 (int) currentOffset.getX(),
                 (int) currentOffset.getY(),
                 brickGenerator.getNextBrick().getShapeMatrix().get(0),
-                brickGenerator.getNextThreeShapes()    //added
+                brickGenerator.getNextThreeShapes(),
+                heldBrick == null ? null : heldBrick.getShapeMatrix().get(0)  // hold display
         );
     }
 
     @Override
     public void mergeBrickToBackground() {
-        currentGameMatrix = MatrixOperations.merge(currentGameMatrix, brickRotator.getCurrentShape(), (int) currentOffset.getX(), (int) currentOffset.getY());
+        currentGameMatrix = MatrixOperations.merge(currentGameMatrix,
+                brickRotator.getCurrentShape(),
+                (int) currentOffset.getX(),
+                (int) currentOffset.getY());
     }
 
     @Override
@@ -123,7 +161,6 @@ public class SimpleBoard implements Board {
         ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix);
         currentGameMatrix = clearRow.getNewMatrix();
         return clearRow;
-
     }
 
     @Override
@@ -131,11 +168,18 @@ public class SimpleBoard implements Board {
         return score;
     }
 
-
     @Override
     public void newGame() {
         currentGameMatrix = new int[width][height];
         score.reset();
+        heldBrick = null;         // reset hold on new game
+        hasHeldThisTurn = false;
         createNewBrick();
     }
+
+    @Override
+    public int[][] getHeldShape() {
+        return heldBrick == null ? null : heldBrick.getShapeMatrix().get(0);
+    }
+
 }

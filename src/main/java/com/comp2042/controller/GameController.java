@@ -75,4 +75,16 @@ public class GameController implements InputEventListener {
     }
 
 
+    @Override
+    public BoardViewData onHoldEvent(MoveEvent event) {
+        BoardViewData data = engine.hold();
+
+        // Send hold shape to GUI
+        gui.updateHoldPiece(engine.getHeldShape());
+
+        return data;
+    }
+
+
+
 }

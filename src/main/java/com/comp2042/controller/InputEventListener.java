@@ -21,4 +21,7 @@ public interface InputEventListener {
     int getScore();
 
     void createNewGame();
+
+    BoardViewData onHoldEvent(MoveEvent event);
+
 }

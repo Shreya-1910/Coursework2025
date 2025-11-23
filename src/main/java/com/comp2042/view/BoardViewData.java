@@ -11,9 +11,12 @@ public final class BoardViewData {
     private final int xPosition;
     private final int yPosition;
     private final int[][] nextBrickData;
-    //store next 3 bricks
+
+    // store next 3 bricks
     private final List<int[][]> nextThreeData;
 
+    //store held piece
+    private final int[][] holdBrickData;
 
     private final boolean ghost;
 
@@ -22,16 +25,18 @@ public final class BoardViewData {
      */
     public BoardViewData(int[][] brickData, int xPosition, int yPosition,
                          int[][] nextBrickData,
-                         List<int[][]> nextThreeData) {
+                         List<int[][]> nextThreeData,
+                         int[][] holdBrickData
+    ) {
         this.brickData = brickData;
         this.xPosition = xPosition;
         this.yPosition = yPosition;
         this.nextBrickData = nextBrickData;
 
-        //store copies of next 3 bricks
+        // store copies of next 3 bricks
         this.nextThreeData = copyList(nextThreeData);
-
-        this.ghost = false;  // default
+        this.holdBrickData = holdBrickData == null ? null : MatrixOperations.copy(holdBrickData);
+        this.ghost = false;  //default
     }
 
     /**
@@ -45,8 +50,10 @@ public final class BoardViewData {
         this.ghost = ghost;
         this.nextBrickData = null; // ghost does not show next brick
         this.nextThreeData = null;
-    }
 
+        // ghost has no held piece
+        this.holdBrickData = null;
+    }
 
 
     public int[][] getBrickData() {
@@ -81,8 +88,14 @@ public final class BoardViewData {
         }
         return result;
     }
-    //returns next 3 bricks
+
+    // returns next 3 bricks
     public List<int[][]> getNextThreeData() {
         return nextThreeData;
+    }
+
+    //getter for held piece
+    public int[][] getHoldBrickData() {
+        return holdBrickData == null ? null : MatrixOperations.copy(holdBrickData);
     }
 }
