@@ -153,31 +153,6 @@ public class GameEngine {
 
 
 
-//HardDrop logic
-    /**
-     * Performs a hard drop. Move the brick down until it cannot move,
-     * then merge it, clear rows, update score and spawn next brick.
-     */
-    public BoardViewData hardDrop() {
-
-    while (board.moveBrickDown()) {
-
-        }
-
-        board.mergeBrickToBackground();
-
-        // Hard drop points
-        board.getScore().add(20);
-
-        ClearRow clearRow = board.clearRows();
-        if (clearRow.getLinesRemoved() > 0) {
-            board.getScore().add(clearRow.getScoreBonus());
-        }
-
-        board.createNewBrick();
-
-        return board.getViewData();
-    }
 
 
 
