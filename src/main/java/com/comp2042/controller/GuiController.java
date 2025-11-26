@@ -30,8 +30,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.scene.control.Label;
 import com.comp2042.model.HighScore;
-import javafx.scene.layout.BorderPane;
-
 
 /**
  * GUI Controller that handles rendering and user input.
@@ -70,11 +68,9 @@ public class GuiController implements Initializable {
     private Label highScoreLabel;
 
     @FXML private GridPane holdPiece;
-    @FXML private BorderPane holdContainer;
 
-
-
-
+    @FXML
+    private Label linesClearedLabel;
 
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
@@ -92,7 +88,6 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
         //update high score
         highScoreLabel.setText("High Score: " + HighScore.load());
-
 
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -146,11 +141,36 @@ public class GuiController implements Initializable {
                 }
 
                 // hard drop
-                if (keyEvent.getCode() == KeyCode.SPACE) {
-                    eventListener.onHardDropEvent(new MoveEvent(EventType.HARDDROP, EventSource.USER));
+                 if (keyEvent.getCode() == KeyCode.SPACE) {
+                    int before = eventListener.getScore();
+
+                    BoardViewData data = eventListener.onHardDropEvent(
+                            new MoveEvent(EventType.HARDDROP, EventSource.USER)
+                    );
+
+                    int after = eventListener.getScore();
+                    int gained = after - before;
+
+                    if (gained > 0) {
+                        NotificationPanel np = new NotificationPanel("+" + gained);
+                        // reset
+                        np.setTranslateY(0);
+                        np.setOpacity(1.0);
+                        np.setVisible(true);
+
+                        groupNotification.getChildren().add(np);
+                        np.showScore(groupNotification.getChildren());
+                    }
+
+                    // Update lines cleared
+                    linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
+
+                    clearGhost();
+                    refreshGhost(eventListener.getGhostPiece());
+                    refreshBrick(data);
+
                     keyEvent.consume();
                 }
-
 
                 // Hold press 'C'
                 if (keyEvent.getCode() == KeyCode.C) {
@@ -284,7 +304,12 @@ public class GuiController implements Initializable {
         if (isPause.getValue() == Boolean.FALSE) {
             DownData downData = eventListener.onDownEvent(event);
             if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                NotificationPanel notificationPanel = new NotificationPanel("+" + downData.getClearRow().getScoreBonus());
+
+                int lines = downData.getClearRow().getLinesRemoved();
+                int points = lines * 50;
+
+                NotificationPanel notificationPanel = new NotificationPanel("+" + points);
+                notificationPanel.setTranslateY(0);
                 groupNotification.getChildren().add(notificationPanel);
                 notificationPanel.showScore(groupNotification.getChildren());
             }
@@ -292,6 +317,8 @@ public class GuiController implements Initializable {
             clearGhost();
             refreshGhost(eventListener.getGhostPiece());
             refreshBrick(downData.getViewData());
+            linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
+
         }
         gamePanel.requestFocus();
     }
@@ -315,11 +342,6 @@ public class GuiController implements Initializable {
         gameOverPanel.setVisible(true);
     }
 
-
-
-
-
-
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
@@ -327,8 +349,9 @@ public class GuiController implements Initializable {
         timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
-        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());updateHighScoreLabel();}
-
+        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());updateHighScoreLabel();
+        linesClearedLabel.setText("Lines: 0");
+    }
 
     public void pauseGame(ActionEvent actionEvent) {
         gamePanel.requestFocus();
@@ -337,7 +360,6 @@ public class GuiController implements Initializable {
     private void updateHighScoreLabel() {
         highScoreLabel.setText("High Score: " + HighScore.load());
     }
-
 
     //  draws a preview brick
     private void drawPreview(int[][] shape, GridPane target) {
@@ -354,7 +376,6 @@ public class GuiController implements Initializable {
             }
         }
     }
-
 
     // Ghost piece methods
 

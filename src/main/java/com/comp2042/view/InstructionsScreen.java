@@ -21,7 +21,9 @@ public class InstructionsScreen {
                         "↓ / S : Move Down Faster\n" +
                         "↑ / W : Rotate\n" +
                         "P : Pause / Unpause\n" +
-                        "N : New Game\n\n" +
+                        "N : New Game\n" +
+                        "Space bar: Hard drop\n" +
+                        "50 points will be awarded for each line cleared & 20 points for hard drop\n\n" +
                         "Goal:\n" +
                         "Clear horizontal lines.\n" +
                         "Don't let bricks reach the top!"

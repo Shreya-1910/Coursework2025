@@ -20,12 +20,13 @@
                text="Score: 0"
                style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
 
-
         <Label fx:id="highScoreLabel"
                text="High Score: 0"
                style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+        <Label fx:id="linesClearedLabel"
+               text="Lines: 0"
+               style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
     </VBox>
-
 
     <BorderPane fx:id="nextPiecesContainer"
                 layoutX="250"
@@ -90,11 +91,12 @@
         </center>
     </BorderPane>
 
-    <Group fx:id="groupNotification" layoutX="14" layoutY="203">
-        <VBox alignment="CENTER">
-            <GameOverPanel fx:id="gameOverPanel"/>
-        </VBox>
-    </Group>
+    <VBox alignment="CENTER" layoutX="14" layoutY="250">
+        <GameOverPanel fx:id="gameOverPanel"/>
+    </VBox>
+
+    <Group fx:id="groupNotification" layoutX="14" layoutY="203" />
+
     <stylesheets>
         <URL value="@window_style.css"/>
     </stylesheets>

@@ -16,6 +16,10 @@ import com.comp2042.view.BoardViewData;
 public class GameEngine {
 
     private final Board board;
+    private int totalLinesCleared = 0;
+
+    // disable soft drop scoring during hard drop
+    private boolean hardDropActive = false;
 
     /**
      * Initializes the game engine with a board of the given size.
@@ -41,12 +45,15 @@ public class GameEngine {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
+                totalLinesCleared += clearRow.getLinesRemoved();
                 board.getScore().add(clearRow.getScoreBonus());
             }
             if (board.createNewBrick()) {
                 gameOver = true;
             }
-        } else if (source == EventSource.USER) {
+        }
+        // only add soft drop score if we aren't hard dropping
+        else if (source == EventSource.USER && !hardDropActive) {
             board.getScore().add(1);
         }
 
@@ -65,7 +72,6 @@ public class GameEngine {
 
     /**
      * Moves the current brick to the right.
-     *
      * @return updated BoardViewData
      */
     public BoardViewData moveRight() {
@@ -87,6 +93,7 @@ public class GameEngine {
      */
     public void newGame() {
         board.newGame();
+        totalLinesCleared = 0;
     }
 
     /**
@@ -109,12 +116,11 @@ public class GameEngine {
      * Returns the Score object for the current game.
      * @return Score object
      */
-
-    //score for gui
+//score for gui
     public int getScore() {
         return board.getScore().scoreProperty().get();
     }
-//full score data
+    //full score data
     public Score getScoreObject() {
         return board.getScore();
     }
@@ -124,25 +130,33 @@ public class GameEngine {
         return board.getViewData();
     }
 
-//HardDrop logic
     /**
-     * Performs a hard drop. Move the brick down until it cannot move,
-     * then merge it, clear rows, update score and spawn next brick.
+     * performs hard drop. +20 for each hard drop.If line cleared then another +50.
+     * Spawn next brick
      */
     public BoardViewData hardDrop() {
 
-    while (board.moveBrickDown()) {
+        hardDropActive = true; //prevents soft drop score
+
+        while (board.moveBrickDown()) {
 
         }
 
+        hardDropActive = false; // normal scoring
+
         board.mergeBrickToBackground();
 
-        // Hard drop points
+        // hard drop points
         board.getScore().add(20);
 
+        // check cleared rows
         ClearRow clearRow = board.clearRows();
         if (clearRow.getLinesRemoved() > 0) {
-            board.getScore().add(clearRow.getScoreBonus());
+            int lines = clearRow.getLinesRemoved();
+            totalLinesCleared += lines;
+
+            //+50 per line
+            board.getScore().add(lines * 50);
         }
 
         board.createNewBrick();
@@ -150,11 +164,9 @@ public class GameEngine {
         return board.getViewData();
     }
 
-
-
-
-
-
+    public int getTotalLinesCleared() {
+        return totalLinesCleared;
+    }
 
     //Ghost brick logic
     /**
@@ -169,20 +181,18 @@ public class GameEngine {
         int ghostX = real.getxPosition();
         int ghostY = real.getyPosition();
 
-        // Simulate falling until collision
         while (canPlaceAt(shape, ghostX, ghostY + 1)) {
             ghostY++;
         }
 
-        // Return a ghost BoardViewData
-        return new BoardViewData(shape, ghostX, ghostY, true); // true = ghost
+        //Return a ghost BoardViewData
+        return new BoardViewData(shape, ghostX, ghostY, true);//true=ghost
     }
 
     public int[][] getHeldShape() {
         if (board == null) return null;
         return board.getHeldShape();
     }
-
 
     /**
      * Checks if a brick shape can be placed at a given board location.
@@ -198,17 +208,16 @@ public class GameEngine {
         for (int i = 0; i < shape.length; i++) {
             for (int j = 0; j < shape[i].length; j++) {
 
-                if (shape[i][j] != 0) { // solid block
+                if (shape[i][j] != 0) { //solid block
                     int boardY = y + i;
                     int boardX = x + j;
 
-                    // Out of bounds
+                    //Out of bounds
                     if (boardY < 0 || boardY >= matrix.length ||
                             boardX < 0 || boardX >= matrix[0].length) {
                         return false;
                     }
-
-                    // Collision with background
+                    //collision with background
                     if (matrix[boardY][boardX] != 0) {
                         return false;
                     }

@@ -15,7 +15,8 @@ public class HomeScreen {
 
         VBox root = new VBox(20);
         root.setAlignment(Pos.CENTER);
-        root.setStyle("-fx-background-color: #0033cc;");
+        root.setStyle("-fx-background-color: linear-gradient(to bottom, #7A00FF, #001DFF);");
+
 
         Text title = new Text("TETRIS");
         title.setFill(Color.WHITE);

@@ -30,17 +30,13 @@ public class NotificationPanel extends BorderPane {
 
     public void showScore(ObservableList<Node> list) {
         FadeTransition ft = new FadeTransition(Duration.millis(2000), this);
-        TranslateTransition tt = new TranslateTransition(Duration.millis(2500), this);
-        tt.setToY(this.getLayoutY() - 40);
         ft.setFromValue(1);
         ft.setToValue(0);
+        TranslateTransition tt = new TranslateTransition(Duration.millis(2000), this);
+        tt.setByY(-40);
         ParallelTransition transition = new ParallelTransition(tt, ft);
-        transition.setOnFinished(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                list.remove(NotificationPanel.this);
-            }
-        });
+
+        transition.setOnFinished(e -> list.remove(this));
         transition.play();
     }
 }
