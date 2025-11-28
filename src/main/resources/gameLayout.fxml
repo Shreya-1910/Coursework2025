@@ -15,7 +15,7 @@
         </center>
     </BorderPane>
 
-    <VBox layoutX="10" layoutY="10" spacing="2">
+    <VBox layoutX="250" layoutY="10" spacing="2">
         <Label fx:id="scoreLabel"
                text="Score: 0"
                style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
@@ -33,7 +33,7 @@
 
     <BorderPane fx:id="nextPiecesContainer"
                 layoutX="250"
-                layoutY="40"
+                layoutY="150"
                 prefWidth="100"
                 prefHeight="100"
                 style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
@@ -73,8 +73,8 @@
     </BorderPane>
 
     <BorderPane fx:id="holdContainer"
-                layoutX="250"
-                layoutY="400"
+                layoutX="400"
+                layoutY="285"
                 prefWidth="100"
                 prefHeight="100"
                 style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
