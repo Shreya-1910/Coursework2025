@@ -68,6 +68,11 @@ public class GameController implements InputEventListener {
         return engine.getScore();
     }
 
+    @Override
+    public int getTotalLinesCleared() {
+        return engine.getTotalLinesCleared();
+    }
+
 //drops brick and updates board
     @Override
     public BoardViewData onHardDropEvent(MoveEvent event) {

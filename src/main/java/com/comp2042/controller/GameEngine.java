@@ -16,7 +16,14 @@ import com.comp2042.view.BoardViewData;
 public class GameEngine {
 
     private final Board board;
+    private int totalLinesCleared = 0;
 
+    private boolean hardDropActive = false;
+
+    // Level and speed
+    private int level = 1;
+    private int baseSpeed = 500; // ms
+    private int currentSpeed = baseSpeed;
     /**
      * Initializes the game engine with a board of the given size.
      * @param rows number of rows in the board
@@ -26,7 +33,6 @@ public class GameEngine {
         board = new SimpleBoard(rows, cols);
         board.createNewBrick();
     }
-
     /**
      * Moves the current brick down and handles merging, row clearing, and score updates.
      * @param source source of the event.
@@ -41,16 +47,41 @@ public class GameEngine {
             board.mergeBrickToBackground();
             clearRow = board.clearRows();
             if (clearRow.getLinesRemoved() > 0) {
+                int lines = clearRow.getLinesRemoved();
+                totalLinesCleared += lines;
                 board.getScore().add(clearRow.getScoreBonus());
+                checkLevelUp();
             }
             if (board.createNewBrick()) {
                 gameOver = true;
             }
-        } else if (source == EventSource.USER) {
+        }
+        // only add soft drop score if we aren't hard dropping
+        else if (source == EventSource.USER && !hardDropActive) {
             board.getScore().add(1);
         }
 
         return new DownData(clearRow, board.getViewData(), gameOver);
+    }
+
+    private void checkLevelUp() {
+        int newLevel = (totalLinesCleared / 5) + 1;
+        if (newLevel > level) {
+            level = newLevel;
+            updateSpeed();
+        }
+    }
+
+    private void updateSpeed() {
+        currentSpeed = Math.max(100, baseSpeed - (level - 1) * 50);
+    }
+
+    public int getCurrentSpeed() {
+        return currentSpeed;
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     /**
@@ -62,17 +93,14 @@ public class GameEngine {
         board.moveBrickLeft();
         return board.getViewData();
     }
-
     /**
      * Moves the current brick to the right.
-     *
      * @return updated BoardViewData
      */
     public BoardViewData moveRight() {
         board.moveBrickRight();
         return board.getViewData();
     }
-
     /**
      * Rotates the current brick left.
      * @return updated BoardViewData
@@ -81,14 +109,15 @@ public class GameEngine {
         board.rotateLeftBrick();
         return board.getViewData();
     }
-
     /**
      * Resets the board and starts a new game.
      */
     public void newGame() {
         board.newGame();
+        totalLinesCleared = 0;
+        level = 1;
+        currentSpeed = baseSpeed;
     }
-
     /**
      * Returns the current board matrix.
      * @return 2D integer array representing the board
@@ -96,7 +125,6 @@ public class GameEngine {
     public int[][] getBoardMatrix() {
         return board.getBoardMatrix();
     }
-
     /**
      * Returns the current view data for the board.
      * @return BoardViewData object
@@ -104,17 +132,15 @@ public class GameEngine {
     public BoardViewData getViewData() {
         return board.getViewData();
     }
-
     /**
      * Returns the Score object for the current game.
      * @return Score object
      */
-
-    //score for gui
+//score for gui
     public int getScore() {
         return board.getScore().scoreProperty().get();
     }
-//full score data
+    //full score data
     public Score getScoreObject() {
         return board.getScore();
     }
@@ -123,38 +149,41 @@ public class GameEngine {
         board.holdBrick();
         return board.getViewData();
     }
-
-//HardDrop logic
     /**
-     * Performs a hard drop. Move the brick down until it cannot move,
-     * then merge it, clear rows, update score and spawn next brick.
+     * performs hard drop. +20 for each hard drop.If line cleared then another +50.
+     * Spawn next brick
      */
     public BoardViewData hardDrop() {
+        hardDropActive = true; //prevents
 
-    while (board.moveBrickDown()) {
+        while (board.moveBrickDown()) {
 
         }
+
+        hardDropActive = false; // normal
 
         board.mergeBrickToBackground();
 
-        // Hard drop points
+        // hard drop points
         board.getScore().add(20);
-
+        // check cleared rows
         ClearRow clearRow = board.clearRows();
         if (clearRow.getLinesRemoved() > 0) {
-            board.getScore().add(clearRow.getScoreBonus());
+            int lines = clearRow.getLinesRemoved();
+            totalLinesCleared += lines;
+
+            //+50 per line
+            board.getScore().add(lines * 50);
+            checkLevelUp();
         }
 
         board.createNewBrick();
-
         return board.getViewData();
     }
 
-
-
-
-
-
+    public int getTotalLinesCleared() {
+        return totalLinesCleared;
+    }
 
     //Ghost brick logic
     /**
@@ -164,25 +193,21 @@ public class GameEngine {
      */
     public BoardViewData getGhostPiece() {
         BoardViewData real = board.getViewData();
-
         int[][] shape = real.getBrickData();
         int ghostX = real.getxPosition();
         int ghostY = real.getyPosition();
 
-        // Simulate falling until collision
         while (canPlaceAt(shape, ghostX, ghostY + 1)) {
             ghostY++;
         }
-
-        // Return a ghost BoardViewData
-        return new BoardViewData(shape, ghostX, ghostY, true); // true = ghost
+        //Return a ghost BoardViewData
+        return new BoardViewData(shape, ghostX, ghostY, true);//true=ghost
     }
 
     public int[][] getHeldShape() {
         if (board == null) return null;
         return board.getHeldShape();
     }
-
 
     /**
      * Checks if a brick shape can be placed at a given board location.
@@ -194,21 +219,18 @@ public class GameEngine {
      */
     private boolean canPlaceAt(int[][] shape, int x, int y) {
         int[][] matrix = board.getBoardMatrix();
-
         for (int i = 0; i < shape.length; i++) {
             for (int j = 0; j < shape[i].length; j++) {
-
-                if (shape[i][j] != 0) { // solid block
+                if (shape[i][j] != 0) { //solid block
                     int boardY = y + i;
                     int boardX = x + j;
 
-                    // Out of bounds
+                    //Out of bounds
                     if (boardY < 0 || boardY >= matrix.length ||
                             boardX < 0 || boardX >= matrix[0].length) {
                         return false;
                     }
-
-                    // Collision with background
+                    //collision with background
                     if (matrix[boardY][boardX] != 0) {
                         return false;
                     }
