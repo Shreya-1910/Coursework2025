@@ -8,32 +8,36 @@
 <?import java.net.URL?>
 <Pane fx:controller="com.comp2042.controller.GuiController"
       xmlns:fx="http://javafx.com/fxml">
+
     <GridPane fx:id="brickPanel" vgap="1" hgap="1"/>
     <BorderPane styleClass="gameBoard" fx:id="gameBoard">
         <center>
             <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
+    <VBox layoutX="250" layoutY="10" spacing="10">
 
-    <VBox layoutX="250" layoutY="10" spacing="2">
         <Label fx:id="scoreLabel"
                text="Score: 0"
-               style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+               styleClass="scoreClass"/>
 
         <Label fx:id="highScoreLabel"
                text="High Score: 0"
-               style="-fx-text-fill: white; -fx-font-size: 18px; -fx-font-weight: bold;"/>
+               styleClass="scoreClass"/>
+
         <Label fx:id="linesClearedLabel"
                text="Lines: 0"
-               style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+               styleClass="scoreClass"/>
+
         <Label fx:id="levelLabel"
                text="Level: 1"
-               style="-fx-font-size: 18px; -fx-text-fill: white; -fx-font-weight: bold;"/>
+               styleClass="scoreClass"/>
+
     </VBox>
 
     <BorderPane fx:id="nextPiecesContainer"
                 layoutX="250"
-                layoutY="150"
+                layoutY="200"
                 prefWidth="100"
                 prefHeight="100"
                 style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
@@ -41,11 +45,11 @@
         <top>
             <Label text="Next Pieces"
                    BorderPane.alignment="CENTER"
-                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-padding: 0 0 10 0;"/>
+                   style="-fx-font-size: 15px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 0 0 10 0;"/>
         </top>
 
         <center>
-            <VBox fx:id="nextPiecesVBox"
+            <HBox fx:id="nextPiecesVBox"
                   spacing="10"
                   alignment="TOP_CENTER">
 
@@ -66,23 +70,21 @@
                           minWidth="90" minHeight="90"
                           alignment="CENTER"
                           style="-fx-border-color: white; -fx-padding: 5;"/>
-
-            </VBox>
+            </HBox>
         </center>
-
     </BorderPane>
 
     <BorderPane fx:id="holdContainer"
-                layoutX="400"
-                layoutY="285"
+                layoutX="275"
+                layoutY="365"
                 prefWidth="100"
                 prefHeight="100"
-                style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
+                style="-fx-border-color:White; -fx-padding: 10; -fx-border-width: 2;">
 
         <top>
             <Label text="Hold"
                    BorderPane.alignment="CENTER"
-                   style="-fx-font-size: 12px; -fx-text-fill: white; -fx-padding: 0 0 10 0;"/>
+                   style="-fx-font-size: 15px; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 0 0 10 0;"/>
         </top>
 
         <center>
@@ -90,9 +92,26 @@
                       hgap="1" vgap="1"
                       minWidth="90" minHeight="90"
                       alignment="CENTER"
-                      style="-fx-border-color: white; -fx-padding: 5;"/>
+                      style="-fx-border-color: White; -fx-padding: 5;"/>
         </center>
     </BorderPane>
+
+    <VBox layoutX="415"
+          layoutY="400"
+          spacing="10"
+          alignment="CENTER">
+
+        <Button text="New Game"
+                onAction="#newGame"
+                styleClass="ipad-dark-grey"
+                prefWidth="140"/>
+
+        <ToggleButton text="Pause"
+                      fx:id="pauseButton"
+                      onAction="#pauseGame"
+                      styleClass="ipad-dark-grey"
+                      prefWidth="140"/>
+    </VBox>
 
     <VBox alignment="CENTER" layoutX="14" layoutY="250">
         <GameOverPanel fx:id="gameOverPanel"/>
