@@ -354,16 +354,27 @@ public class GuiController implements Initializable {
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
-        eventListener.createNewGame();
-        timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
-        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());updateHighScoreLabel();
         linesClearedLabel.setText("Lines: 0");
         levelLabel.setText("Level: 1");
         currentLevel = 1;
         holdPiece.getChildren().clear();
         eventListener.createNewGame();
+        updateHighScoreLabel();
+
+        // Refresh board
+        refreshGameBackground(eventListener.onDownEvent(
+                new MoveEvent(EventType.DOWN, EventSource.THREAD)
+        ).getViewData().getBrickData());
+        //reset speed
+        timeLine.getKeyFrames().clear();
+        timeLine.getKeyFrames().add(new KeyFrame(
+                Duration.millis(400),
+                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+        ));
+
+        timeLine.play();
     }
 
     private void updateHighScoreLabel() {
