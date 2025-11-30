@@ -17,6 +17,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.Reflection;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -73,6 +74,9 @@ public class GuiController implements Initializable {
     private Label linesClearedLabel;
 
     @FXML private Label levelLabel; // Added for level display
+
+    @FXML private ToggleButton pauseButton;
+
 
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
@@ -201,6 +205,22 @@ public class GuiController implements Initializable {
             isPause.set(true);
         }
     }
+
+    @FXML
+    private void pauseGame(ActionEvent event) {
+        if (pauseButton.isSelected()) {
+            // Pause the game
+            timeLine.pause();
+            isPause.set(true);
+            pauseButton.setText("Resume");
+        } else {
+            // Resume the game
+            timeLine.play();
+            isPause.set(false);
+            pauseButton.setText("Pause");
+        }
+    }
+
 
     public void initGameView(int[][] boardMatrix, BoardViewData brick) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
@@ -334,16 +354,27 @@ public class GuiController implements Initializable {
     public void newGame(ActionEvent actionEvent) {
         timeLine.stop();
         gameOverPanel.setVisible(false);
-        eventListener.createNewGame();
-        timeLine.play();
         isPause.setValue(Boolean.FALSE);
         isGameOver.setValue(Boolean.FALSE);
-        refreshGameBackground(eventListener.onDownEvent(new MoveEvent(EventType.DOWN, EventSource.THREAD)).getViewData().getBrickData());updateHighScoreLabel();
         linesClearedLabel.setText("Lines: 0");
         levelLabel.setText("Level: 1");
         currentLevel = 1;
         holdPiece.getChildren().clear();
         eventListener.createNewGame();
+        updateHighScoreLabel();
+
+        // Refresh board
+        refreshGameBackground(eventListener.onDownEvent(
+                new MoveEvent(EventType.DOWN, EventSource.THREAD)
+        ).getViewData().getBrickData());
+        //reset speed
+        timeLine.getKeyFrames().clear();
+        timeLine.getKeyFrames().add(new KeyFrame(
+                Duration.millis(400),
+                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
+        ));
+
+        timeLine.play();
     }
 
     private void updateHighScoreLabel() {
