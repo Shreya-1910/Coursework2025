@@ -1,7 +1,6 @@
 package com.comp2042.controller;
 
 import com.comp2042.events.MoveEvent;
-import com.comp2042.model.Score;
 import com.comp2042.view.BoardViewData;
 import com.comp2042.model.DownData;
 
@@ -28,41 +27,40 @@ public class GameController implements InputEventListener {
         gui.bindScore(engine.getScoreObject().scoreProperty());
     }
 
-
     @Override
     public DownData onDownEvent(MoveEvent event) {
         DownData data = engine.moveDown(event.getEventSource());
-        gui.refreshGameBackground(engine.getBoardMatrix());
+        updateGameDisplay();
         if (data.isGameOver()) gui.gameOver();
         return data;
     }
 
     @Override
     public BoardViewData onLeftEvent(MoveEvent event) {
-        return engine.moveLeft();
+        return updateBoardViewData(engine::moveLeft); // Using method reference
     }
 
     @Override
     public BoardViewData onRightEvent(MoveEvent event) {
-        return engine.moveRight();
+        return updateBoardViewData(engine::moveRight); // Using method reference
     }
 
     @Override
     public BoardViewData onRotateEvent(MoveEvent event) {
-        return engine.rotate();
+        return updateBoardViewData(engine::rotate); // Using method reference
     }
 
     @Override
     public void createNewGame() {
         engine.newGame();
-        gui.refreshGameBackground(engine.getBoardMatrix());
+        updateGameDisplay();
     }
-    //GhostPiece method added
+
     @Override
     public BoardViewData getGhostPiece() {
         return engine.getGhostPiece();
     }
-//returns score
+
     @Override
     public int getScore() {
         return engine.getScore();
@@ -73,23 +71,31 @@ public class GameController implements InputEventListener {
         return engine.getTotalLinesCleared();
     }
 
-//drops brick and updates board
     @Override
     public BoardViewData onHardDropEvent(MoveEvent event) {
-        return engine.hardDrop();
+        return updateBoardViewData(engine::hardDrop); // Using method reference
     }
-
 
     @Override
     public BoardViewData onHoldEvent(MoveEvent event) {
         BoardViewData data = engine.hold();
-
-        // Send hold shape to GUI
         gui.updateHoldPiece(engine.getHeldShape());
-
         return data;
     }
 
+    /**
+     * A helper method to centralize the board update logic.
+     * This reduces repetition across move/rotate/hold/hard drop methods.
+     */
+    private BoardViewData updateBoardViewData(Runnable action) {
+        action.run(); // Perform the game action
+        return engine.getViewData(); // Return the updated board view data
+    }
 
-
+    /**
+     * A helper method to update the GUI with the latest game state.
+     */
+    private void updateGameDisplay() {
+        gui.refreshGameBackground(engine.getBoardMatrix());
+    }
 }
