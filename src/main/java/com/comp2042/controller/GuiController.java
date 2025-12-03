@@ -34,11 +34,14 @@ import com.comp2042.model.HighScore;
 
 /**
  * GUI Controller that handles rendering and user input.
- * Includes ghost piece rendering.
+ * Includes ghost piece rendering and garbage block.
  */
 public class GuiController implements Initializable {
 
     private static final int BRICK_SIZE = 20;
+
+    // Garbage block
+    private static final int GARBAGE_BLOCK_VALUE = 8; // Value used in board for garbage blocks
 
     @FXML
     private GridPane gamePanel;
@@ -73,7 +76,11 @@ public class GuiController implements Initializable {
     @FXML
     private Label linesClearedLabel;
 
-    @FXML private Label levelLabel; // Added for level display
+    @FXML private Label levelLabel;
+
+    @FXML private ToggleButton pauseButton;
+
+    @FXML private Label garbageInfoLabel;
 
     @FXML private ToggleButton pauseButton;
 
@@ -97,6 +104,12 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
         //update high score
         highScoreLabel.setText("High Score: " + HighScore.load());
+
+        // Initialize garbage info label
+        if (garbageInfoLabel != null) {
+            garbageInfoLabel.setText("Garbage: Off");
+            garbageInfoLabel.setTextFill(Color.YELLOW);
+        }
 
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
@@ -150,7 +163,6 @@ public class GuiController implements Initializable {
 
                 // hard drop
                 if (keyEvent.getCode() == KeyCode.SPACE) {
-
                     hardDrop();
                     keyEvent.consume();
                 }
@@ -194,6 +206,9 @@ public class GuiController implements Initializable {
         refreshGhost(eventListener.getGhostPiece());
         refreshBrick(data);
         updateLevelAndSpeed();
+
+        // Update garbage info after hard drop
+        updateGarbageInfo();
     }
 
     private void togglePause() {
@@ -263,8 +278,8 @@ public class GuiController implements Initializable {
             levelLabel.setText("Level: " + currentLevel);
         }
 
-        // initial 400ms, decrease 100ms per level, min 50ms
-        int newSpeed = Math.max(50, 400 - (currentLevel - 1) * 100);
+        // initial 400ms, decrease 50ms per level, min 80ms
+        int newSpeed = Math.max(80, 400 - (currentLevel - 1) * 50);
 
         if (timeLine != null) {
             timeLine.stop();
@@ -274,6 +289,28 @@ public class GuiController implements Initializable {
                     ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
             ));
             timeLine.play();
+        }
+
+        // Update garbage info when level changes
+        updateGarbageInfo();
+    }
+
+    /**
+     * Updates the garbage information display
+     */
+    private void updateGarbageInfo() {
+        if (garbageInfoLabel != null && eventListener != null) {
+            int level = eventListener.getLevel();
+
+            if (level >= 3) {
+                // Garbage blocks are active
+                garbageInfoLabel.setText("Garbage: ON");
+                garbageInfoLabel.setTextFill(Color.RED);
+            } else {
+                // Garbage blocks not active yet
+                garbageInfoLabel.setText("Garbage: Off");
+                garbageInfoLabel.setTextFill(Color.YELLOW);
+            }
         }
     }
 
@@ -304,6 +341,9 @@ public class GuiController implements Initializable {
             case 7:
                 returnPaint = Color.BURLYWOOD;
                 break;
+            case GARBAGE_BLOCK_VALUE:
+                returnPaint = Color.BLACK;
+                break;
             default:
                 returnPaint = Color.WHITE;
                 break;
@@ -328,6 +368,9 @@ public class GuiController implements Initializable {
             refreshGhost(eventListener.getGhostPiece());
             refreshBrick(downData.getViewData());
             linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
+
+            // Update garbage info
+            updateGarbageInfo();
         }
         gamePanel.requestFocus();
     }
@@ -360,6 +403,13 @@ public class GuiController implements Initializable {
         levelLabel.setText("Level: 1");
         currentLevel = 1;
         holdPiece.getChildren().clear();
+
+        // Reset garbage info
+        if (garbageInfoLabel != null) {
+            garbageInfoLabel.setText("Garbage: Off");
+            garbageInfoLabel.setTextFill(Color.GRAY);
+        }
+
         eventListener.createNewGame();
         updateHighScoreLabel();
 
@@ -465,5 +515,19 @@ public class GuiController implements Initializable {
                 holdPiece.add(r, j, i);
             }
         }
+    }
+
+    /**
+     * Gets the current level for garbage block logic
+     */
+    public int getCurrentLevel() {
+        return currentLevel;
+    }
+
+    /**
+     * Gets the garbage block constant
+     */
+    public static int getGarbageBlockValue() {
+        return GARBAGE_BLOCK_VALUE;
     }
 }

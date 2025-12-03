@@ -29,7 +29,7 @@ public interface Board {
 
     void holdBrick();
 
-    Brick getHeldBrick();
-
     int[][] getHeldShape();
+
+    void setBoardMatrix(int[][] matrix);
 }

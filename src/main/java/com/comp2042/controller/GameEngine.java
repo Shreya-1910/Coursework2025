@@ -8,6 +8,10 @@ import com.comp2042.model.Score;
 import com.comp2042.model.SimpleBoard;
 import com.comp2042.view.BoardViewData;
 
+import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Handles all the game logic including brick movement, rotations, scoring,
  * row clearing, game over detection and new game creation.
@@ -17,8 +21,14 @@ public class GameEngine {
 
     private final Board board;
     private int totalLinesCleared = 0;
-
     private boolean hardDropActive = false;
+    private Random random = new Random();
+
+    // Garbage block
+    private static final int GARBAGE_START_LEVEL = 3;
+    private static final int GARBAGE_BLOCK_VALUE = 8; // Use 8 to represent garbage blocks
+    private static final double GARBAGE_SPAWN_CHANCE = 0.25; // 25% chance per level check
+    private int garbageLinesAdded = 0;
 
     // Level and speed
     private int level = 1;
@@ -51,7 +61,18 @@ public class GameEngine {
                 totalLinesCleared += lines;
                 board.getScore().add(clearRow.getScoreBonus());
                 checkLevelUp();
+
+                // Check for garbage block spawning after line clear
+                if (level >= GARBAGE_START_LEVEL) {
+                    trySpawnGarbageBlocks();
+                }
             }
+
+            //check for random garbage spawn when brick lands
+            if (level >= GARBAGE_START_LEVEL) {
+                tryRandomGarbageSpawn();
+            }
+
             if (board.createNewBrick()) {
                 gameOver = true;
             }
@@ -69,7 +90,116 @@ public class GameEngine {
         if (newLevel > level) {
             level = newLevel;
             updateSpeed();
+
+            // Add garbage layer on level up
+            if (level >= GARBAGE_START_LEVEL) {
+                addGarbageLayer();
+            }
         }
+    }
+
+    /**
+     * Try to spawn garbage blocks randomly based on level
+     */
+    private void tryRandomGarbageSpawn() {
+        if (level < GARBAGE_START_LEVEL) return;
+
+        // Chance increases with level
+        double spawnChance = GARBAGE_SPAWN_CHANCE + ((level - GARBAGE_START_LEVEL) * 0.05);
+        if (random.nextDouble() < spawnChance) {
+            spawnRandomGarbageBlocks();
+        }
+    }
+
+    /**
+     * Try to spawn garbage blocks after clearing lines
+     */
+    private void trySpawnGarbageBlocks() {
+        if (level < GARBAGE_START_LEVEL) return;
+
+        if (random.nextDouble() < 0.4) {
+            spawnRandomGarbageBlocks();
+        }
+    }
+
+    /**
+     * Add a layer of garbage blocks at the bottom
+     */
+    private void addGarbageLayer() {
+        int[][] matrix = board.getBoardMatrix();
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        // Move all rows up by one
+        for (int row = 0; row < rows - 1; row++) {
+            matrix[row] = matrix[row + 1].clone();
+        }
+
+        // Create new garbage row with 1-2 holes
+        int[] newRow = new int[cols];
+        int holes = random.nextInt(2) + 1;
+        List<Integer> holePositions = new ArrayList<>();
+
+        // Randomly select hole positions
+        while (holePositions.size() < holes) {
+            int pos = random.nextInt(cols);
+            if (!holePositions.contains(pos)) {
+                holePositions.add(pos);
+            }
+        }
+
+        // Fill row with garbage blocks, leaving holes
+        for (int col = 0; col < cols; col++) {
+            newRow[col] = holePositions.contains(col) ? 0 : GARBAGE_BLOCK_VALUE;
+        }
+
+        matrix[rows - 1] = newRow;
+        garbageLinesAdded++;
+
+        // Update the board with the new matrix
+        updateBoardMatrix(matrix);
+    }
+
+    /**
+     * Spawn random individual garbage blocks in empty spaces
+     */
+    private void spawnRandomGarbageBlocks() {
+        int[][] matrix = board.getBoardMatrix();
+        int rows = matrix.length;
+        int cols = matrix[0].length;
+
+        int blocksToSpawn = random.nextInt(3) + 1; // 1-3 garbage blocks
+
+        for (int i = 0; i < blocksToSpawn; i++) {
+            // Find valid positions
+            List<int[]> validPositions = new ArrayList<>();
+
+            for (int row = rows - 1; row >= 0; row--) {
+                for (int col = 0; col < cols; col++) {
+                    if (matrix[row][col] == 0) {
+                        boolean atBottom = (row == rows - 1);
+                        boolean hasBlockBelow = (row < rows - 1 && matrix[row + 1][col] != 0);
+
+                        if (atBottom || hasBlockBelow) {
+                            validPositions.add(new int[]{row, col});
+                        }
+                    }
+                }
+            }
+
+            if (!validPositions.isEmpty()) {
+                int[] pos = validPositions.get(random.nextInt(validPositions.size()));
+                matrix[pos[0]][pos[1]] = GARBAGE_BLOCK_VALUE;
+            }
+        }
+
+        updateBoardMatrix(matrix);
+    }
+
+    /**
+     * Helper method to update the board matrix
+     */
+    private void updateBoardMatrix(int[][] newMatrix) {
     }
 
     private void updateSpeed() {
@@ -82,6 +212,14 @@ public class GameEngine {
 
     public int getLevel() {
         return level;
+    }
+
+    public int getGarbageLinesAdded() {
+        return garbageLinesAdded;
+    }
+
+    public static int getGarbageBlockValue() {
+        return GARBAGE_BLOCK_VALUE;
     }
 
     /**
@@ -117,6 +255,7 @@ public class GameEngine {
         totalLinesCleared = 0;
         level = 1;
         currentSpeed = baseSpeed;
+        garbageLinesAdded = 0;
     }
     /**
      * Returns the current board matrix.
@@ -136,7 +275,7 @@ public class GameEngine {
      * Returns the Score object for the current game.
      * @return Score object
      */
-//score for gui
+    //score for gui
     public int getScore() {
         return board.getScore().scoreProperty().get();
     }
@@ -175,6 +314,15 @@ public class GameEngine {
             //+50 per line
             board.getScore().add(lines * 50);
             checkLevelUp();
+            // Check for garbage block spawning after hard drop clear
+            if (level >= GARBAGE_START_LEVEL) {
+                trySpawnGarbageBlocks();
+            }
+        }
+
+        // Check for random garbage spawn after hard drop
+        if (level >= GARBAGE_START_LEVEL) {
+            tryRandomGarbageSpawn();
         }
 
         board.createNewBrick();
