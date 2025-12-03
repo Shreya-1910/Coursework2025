@@ -82,6 +82,9 @@ public class GuiController implements Initializable {
 
     @FXML private Label garbageInfoLabel;
 
+    @FXML private ToggleButton pauseButton;
+
+
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
     private Rectangle[][] rectangles;
