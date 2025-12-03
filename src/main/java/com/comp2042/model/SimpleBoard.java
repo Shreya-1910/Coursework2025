@@ -182,4 +182,11 @@ public class SimpleBoard implements Board {
         return heldBrick == null ? null : heldBrick.getShapeMatrix().get(0);
     }
 
+    @Override
+    public void setBoardMatrix(int[][] newMatrix) {
+        this.currentGameMatrix = new int[newMatrix.length][];
+        for (int i = 0; i < newMatrix.length; i++) {
+            this.currentGameMatrix[i] = newMatrix[i].clone();
+        }
+    }
 }

@@ -25,4 +25,6 @@ public interface InputEventListener {
     BoardViewData onHoldEvent(MoveEvent event);
 
     int getTotalLinesCleared();
+
+    int getLevel();
 }
