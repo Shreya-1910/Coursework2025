@@ -1,5 +1,11 @@
 .root {
-    -fx-background-image: url("background_image.png");
+    -fx-background-color: linear-gradient(to bottom,
+        #E000AA 0%,
+        #A000CC 20%,
+        #4C007A 40%,
+        #1B004D 70%,
+        #0A0033 100%
+    );
 }
 
 
@@ -45,13 +51,6 @@
 
 .vbox {
     -fx-spacing: 12;
-}
-
-.helpInfo {
-    -fx-fill: white;
-    -fx-alignment: center-left;
-    -fx-text-alignment: left;
-    -fx-font-size: 10px;
 }
 
 .bonusStyle {

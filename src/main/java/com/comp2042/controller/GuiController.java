@@ -82,9 +82,6 @@ public class GuiController implements Initializable {
 
     @FXML private Label garbageInfoLabel;
 
-    @FXML private ToggleButton pauseButton;
-
-
     private Rectangle[][] displayMatrix;
     private InputEventListener eventListener;
     private Rectangle[][] rectangles;
@@ -114,13 +111,21 @@ public class GuiController implements Initializable {
         gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
             @Override
             public void handle(KeyEvent keyEvent) {
+
+                if (keyEvent.getCode() == KeyCode.N) {
+                    newGame(null);
+                    keyEvent.consume();
+                    return;
+                }
+
                 // allow pause/unpause
-                if (keyEvent.getCode() == KeyCode.P) {
+                if (keyEvent.getCode() == KeyCode.P && !isGameOver.getValue()) {
                     togglePause();
                     keyEvent.consume();
                     return;
                 }
-                //  Stop all movement if paused or game over
+
+                // Stop all movement if paused or game over
                 if (isPause.getValue() || isGameOver.getValue()) {
                     return;
                 }
@@ -152,12 +157,6 @@ public class GuiController implements Initializable {
                 // down
                 if (keyEvent.getCode() == KeyCode.DOWN || keyEvent.getCode() == KeyCode.S) {
                     moveDown(new MoveEvent(EventType.DOWN, EventSource.USER));
-                    keyEvent.consume();
-                }
-
-                // new game
-                if (keyEvent.getCode() == KeyCode.N) {
-                    newGame(null);
                     keyEvent.consume();
                 }
 
@@ -215,9 +214,13 @@ public class GuiController implements Initializable {
         if (isPause.get()) {
             timeLine.play();
             isPause.set(false);
+            pauseButton.setSelected(false);
+            pauseButton.setText("Pause");
         } else {
             timeLine.pause();
             isPause.set(true);
+            pauseButton.setSelected(true);
+            pauseButton.setText("Resume");
         }
     }
 
@@ -235,7 +238,6 @@ public class GuiController implements Initializable {
             pauseButton.setText("Pause");
         }
     }
-
 
     public void initGameView(int[][] boardMatrix, BoardViewData brick) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
@@ -324,7 +326,7 @@ public class GuiController implements Initializable {
                 returnPaint = Color.AQUA;
                 break;
             case 2:
-                returnPaint = Color.BLUEVIOLET;
+                returnPaint = Color.ORANGE;
                 break;
             case 3:
                 returnPaint = Color.DARKGREEN;
@@ -404,10 +406,22 @@ public class GuiController implements Initializable {
         currentLevel = 1;
         holdPiece.getChildren().clear();
 
+        // Clear notifications
+        groupNotification.getChildren().clear();
+
         // Reset garbage info
         if (garbageInfoLabel != null) {
             garbageInfoLabel.setText("Garbage: Off");
-            garbageInfoLabel.setTextFill(Color.GRAY);
+            garbageInfoLabel.setTextFill(Color.YELLOW);
+        }
+
+        // Reset
+        gamePanel.requestFocus();
+
+        // Reset pause button
+        if (pauseButton != null) {
+            pauseButton.setSelected(false);
+            pauseButton.setText("Pause");
         }
 
         eventListener.createNewGame();
