@@ -7,69 +7,49 @@ import com.comp2042.model.DownData;
 import com.comp2042.view.BoardViewData;
 import com.comp2042.view.GameOverPanel;
 import com.comp2042.view.NotificationPanel;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.effect.Reflection;
-import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import javafx.util.Duration;
 import java.net.URL;
 import java.util.ResourceBundle;
-import javafx.scene.control.Label;
 
 /**
- * GUI Controller that handles rendering and user input.
- * Includes ghost piece rendering and garbage block.
+ * Refactored GUI Controller using GameLoop.
  */
 public class GuiController implements Initializable {
 
-    @FXML
-    private GridPane gamePanel;
-    @FXML
-    private Group groupNotification;
-    @FXML
-    private GridPane brickPanel;
-    @FXML
-    private GameOverPanel gameOverPanel;
-    @FXML
-    private Label scoreLabel;
-    @FXML
-    private GridPane nextPiece1;
-    @FXML
-    private GridPane nextPiece2;
-    @FXML
-    private GridPane nextPiece3;
-    @FXML
-    private Label highScoreLabel;
-    @FXML
-    private GridPane holdPiece;
-    @FXML
-    private Label linesClearedLabel;
-    @FXML
-    private Label levelLabel;
-    @FXML
-    private ToggleButton pauseButton;
-    @FXML
-    private Label garbageInfoLabel;
+    @FXML private GridPane gamePanel;
+    @FXML private Group groupNotification;
+    @FXML private GridPane brickPanel;
+    @FXML private GameOverPanel gameOverPanel;
+    @FXML private Label scoreLabel;
+    @FXML private GridPane nextPiece1;
+    @FXML private GridPane nextPiece2;
+    @FXML private GridPane nextPiece3;
+    @FXML private Label highScoreLabel;
+    @FXML private GridPane holdPiece;
+    @FXML private Label linesClearedLabel;
+    @FXML private Label levelLabel;
+    @FXML private ToggleButton pauseButton;
+    @FXML private Label garbageInfoLabel;
 
     private InputEventListener eventListener;
-    private Timeline timeLine;
+    private GameLoop gameLoop;
 
     private final BooleanProperty isPause = new SimpleBooleanProperty();
     private final BooleanProperty isGameOver = new SimpleBooleanProperty();
-    private int currentLevel = 1; // starting level
+    private int currentLevel = 1;
     private final int linesPerLevel = 5;
 
     private InputHandler inputHandler;
@@ -89,20 +69,20 @@ public class GuiController implements Initializable {
         highScoreManager.updateHighScoreDisplay();
         initializeGarbageInfo();
 
-        gamePanel.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                if (eventListener == null) return;
-                inputHandler.handleKeyPress(keyEvent);
-                highScoreManager.updateHighScoreDisplay();
-            }
-        });
+        gamePanel.setOnKeyPressed(this::handleKeyPress);
+
         gameOverPanel.setVisible(false);
 
-        final Reflection reflection = new Reflection();
+        Reflection reflection = new Reflection();
         reflection.setFraction(0.8);
         reflection.setTopOpacity(0.9);
         reflection.setTopOffset(-12);
+    }
+
+    private void handleKeyPress(KeyEvent keyEvent) {
+        if (eventListener == null) return;
+        inputHandler.handleKeyPress(keyEvent);
+        highScoreManager.updateHighScoreDisplay();
     }
 
     private void initializeGarbageInfo() {
@@ -115,6 +95,61 @@ public class GuiController implements Initializable {
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
         inputHandler = new InputHandler(isPause, isGameOver, this, eventListener);
+    }
+
+    public void initGameView(int[][] boardMatrix, BoardViewData brick) {
+        gameRenderer.initDisplayMatrix(boardMatrix);
+        gameRenderer.initBrickRectangles(brick);
+        gameRenderer.positionBrickPanel(brick);
+
+        gameLoop = new GameLoop(this, 400); // 400ms initial speed
+        gameLoop.start();
+    }
+
+    public void moveDown(MoveEvent event) {
+        if (!isPause.getValue()) {
+            DownData downData = eventListener.onDownEvent(event);
+
+            if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
+                int lines = downData.getClearRow().getLinesRemoved();
+                int points = lines * 50;
+                NotificationPanel notificationPanel = new NotificationPanel("+" + points);
+                notificationPanel.setTranslateY(0);
+                groupNotification.getChildren().add(notificationPanel);
+                notificationPanel.showScore(groupNotification.getChildren());
+                updateLevelAndSpeed();
+            }
+
+            gameRenderer.clearGhost();
+            gameRenderer.refreshGhost(eventListener.getGhostPiece());
+            gameRenderer.refreshBrick(downData.getViewData(), isPause.get());
+            linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
+            updateGarbageInfo();
+        }
+        gamePanel.requestFocus();
+    }
+
+    private void updateLevelAndSpeed() {
+        int totalLines = eventListener.getTotalLinesCleared();
+        currentLevel = totalLines / linesPerLevel + 1;
+        if (levelLabel != null) levelLabel.setText("Level: " + currentLevel);
+
+        int newSpeed = Math.max(80, 400 - (currentLevel - 1) * 50);
+        if (gameLoop != null) gameLoop.setSpeed(newSpeed);
+
+        updateGarbageInfo();
+    }
+
+    private void updateGarbageInfo() {
+        if (garbageInfoLabel != null && eventListener != null) {
+            if (eventListener.getLevel() >= 3) {
+                garbageInfoLabel.setText("Garbage: ON");
+                garbageInfoLabel.setTextFill(Color.RED);
+            } else {
+                garbageInfoLabel.setText("Garbage: Off");
+                garbageInfoLabel.setTextFill(Color.YELLOW);
+            }
+        }
     }
 
     void hardDrop() {
@@ -139,15 +174,14 @@ public class GuiController implements Initializable {
         updateLevelAndSpeed();
         updateGarbageInfo();
     }
-
     void togglePause() {
         if (isPause.get()) {
-            timeLine.play();
+            gameLoop.resume();
             isPause.set(false);
             pauseButton.setSelected(false);
             pauseButton.setText("Pause");
         } else {
-            timeLine.pause();
+            gameLoop.pause();
             isPause.set(true);
             pauseButton.setSelected(true);
             pauseButton.setText("Resume");
@@ -156,124 +190,24 @@ public class GuiController implements Initializable {
 
     @FXML
     private void pauseGame(ActionEvent event) {
-        if (pauseButton.isSelected()) {
-            timeLine.pause();
-            isPause.set(true);
-            pauseButton.setText("Resume");
-        } else {
-            timeLine.play();
-            isPause.set(false);
-            pauseButton.setText("Pause");
-        }
+        togglePause();
     }
-
-    public void initGameView(int[][] boardMatrix, BoardViewData brick) {
-        gameRenderer.initDisplayMatrix(boardMatrix);
-        gameRenderer.initBrickRectangles(brick);
-        gameRenderer.positionBrickPanel(brick);
-        startGameLoop();
-    }
-
-    private void startGameLoop() {
-        timeLine = new Timeline(new KeyFrame(
-                Duration.millis(400),
-                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
-        ));
-        timeLine.setCycleCount(Timeline.INDEFINITE);
-        timeLine.play();
-    }
-
-    private void updateLevelAndSpeed() {
-        int totalLines = eventListener.getTotalLinesCleared();
-        currentLevel = totalLines / linesPerLevel + 1; // increase level
-
-        if (levelLabel != null) {
-            levelLabel.setText("Level: " + currentLevel);
-        }
-
-        int newSpeed = Math.max(80, 400 - (currentLevel - 1) * 50);
-
-        if (timeLine != null) {
-            timeLine.stop();
-            timeLine.getKeyFrames().clear();
-            timeLine.getKeyFrames().add(new KeyFrame(
-                    Duration.millis(newSpeed),
-                    ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
-            ));
-            timeLine.play();
-        }
-        // Update garbage info when level changes
-        updateGarbageInfo();
-    }
-    /**
-     * Updates the garbage information display
-     */
-    private void updateGarbageInfo() {
-        if (garbageInfoLabel != null && eventListener != null) {
-            int level = eventListener.getLevel();
-
-            if (level >= 3) {
-                garbageInfoLabel.setText("Garbage: ON");
-                garbageInfoLabel.setTextFill(Color.RED);
-            } else {
-                garbageInfoLabel.setText("Garbage: Off");
-                garbageInfoLabel.setTextFill(Color.YELLOW);
-            }
-        }
-    }
-
-    void moveDown(MoveEvent event) {
-        if (!isPause.getValue()) {
-            DownData downData = eventListener.onDownEvent(event);
-            if (downData.getClearRow() != null && downData.getClearRow().getLinesRemoved() > 0) {
-                int lines = downData.getClearRow().getLinesRemoved();
-                int points = lines * 50;
-                NotificationPanel notificationPanel = new NotificationPanel("+" + points);
-                notificationPanel.setTranslateY(0);
-                groupNotification.getChildren().add(notificationPanel);
-                notificationPanel.showScore(groupNotification.getChildren());
-                updateLevelAndSpeed();
-            }
-
-            gameRenderer.clearGhost();
-            gameRenderer.refreshGhost(eventListener.getGhostPiece());
-            gameRenderer.refreshBrick(downData.getViewData(), isPause.get());
-            linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
-            updateGarbageInfo();
-        }
-        gamePanel.requestFocus();
-    }
-
-    public void bindScore(IntegerProperty scoreProperty) {
-        scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
-    }
-
-    public void gameOver() {
-        timeLine.stop();
-        isGameOver.setValue(Boolean.TRUE);
-
-        int finalScore = eventListener.getScore();
-        highScoreManager.saveIfHigher(finalScore);
-        gameOverPanel.setVisible(true);
-    }
-
     @FXML
     public void newGame(ActionEvent actionEvent) {
         resetGameState();
         clearGameElements();
         eventListener.createNewGame();
         resetGameLogic();
-        restartGameLoop();
+        gameLoop.start();
         resetUI();
-        gameOverPanel.setVisible(false);
         gamePanel.requestFocus();
     }
 
     private void resetGameState() {
-        timeLine.stop();
+        if (gameLoop != null) gameLoop.stop();
         gameOverPanel.setVisible(false);
-        isPause.setValue(Boolean.FALSE);
-        isGameOver.setValue(Boolean.FALSE);
+        isPause.setValue(false);
+        isGameOver.setValue(false);
         linesClearedLabel.setText("Lines: 0");
         levelLabel.setText("Level: 1");
         currentLevel = 1;
@@ -289,6 +223,7 @@ public class GuiController implements Initializable {
             pauseButton.setText("Pause");
         }
     }
+
     private void clearGameElements() {
         holdPiece.getChildren().clear();
         groupNotification.getChildren().clear();
@@ -300,16 +235,15 @@ public class GuiController implements Initializable {
         ).getViewData().getBrickData());
     }
 
-    private void restartGameLoop() {
-        timeLine = new Timeline(new KeyFrame(
-                Duration.millis(400),
-                ae -> moveDown(new MoveEvent(EventType.DOWN, EventSource.THREAD))
-        ));
-        timeLine.setCycleCount(Timeline.INDEFINITE);
-        timeLine.play();
+    public void gameOver() {
+        if (gameLoop != null) gameLoop.stop();
+        isGameOver.set(true);
+
+        int finalScore = eventListener.getScore();
+        highScoreManager.saveIfHigher(finalScore);
+        gameOverPanel.setVisible(true);
     }
 
-    // needed by InputHandler
     void clearGhost() {
         gameRenderer.clearGhost();
     }
@@ -325,23 +259,20 @@ public class GuiController implements Initializable {
     public void updateHoldPiece(int[][] heldShape) {
         gameRenderer.updateHoldPiece(heldShape);
     }
-    /**
-     * Gets the current level for garbage block logic
-     */
+
     public int getCurrentLevel() {
         return currentLevel;
     }
-    /**
-     * Gets the garbage block constant
-     */
+
     public static int getGarbageBlockValue() {
         return GameRenderer.getGarbageBlockValue();
     }
 
-    /**
-     * Refreshes the game background called from GameController
-     */
     public void refreshGameBackground(int[][] board) {
         gameRenderer.refreshGameBackground(board);
+    }
+
+    public void bindScore(IntegerProperty scoreProperty) {
+        scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }
 }
