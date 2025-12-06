@@ -27,6 +27,11 @@ public class GameController implements InputEventListener {
         gui.bindScore(engine.getScoreObject().scoreProperty());
     }
 
+    /**
+     * delegates the move action to the GameEngine and updates the game display.
+     * @param event the move event containing the source of the move action
+     * @return a {@link DownData} object containing data about the move including whether the game is over.
+     */
     @Override
     public DownData onDownEvent(MoveEvent event) {
         DownData data = engine.moveDown(event.getEventSource());
@@ -35,47 +40,79 @@ public class GameController implements InputEventListener {
         return data;
     }
 
+    /**
+     * @param event delegates the move action to the GameEngine and updates the game display.
+     * @return a {@link BoardViewData} object representing the updated game board after the move.
+     */
     @Override
     public BoardViewData onLeftEvent(MoveEvent event) {
         return updateBoardViewData(engine::moveLeft); // Using method reference
     }
 
+    /**
+     * @param event the move event containing the source of the move action
+     * @return a {@link BoardViewData} object representing the updated game board after the move
+     */
     @Override
     public BoardViewData onRightEvent(MoveEvent event) {
         return updateBoardViewData(engine::moveRight); // Using method reference
     }
 
+    /**
+     * @param event event the move event containing the source of the rotation action
+     * @return a {@link BoardViewData} object representing the updated game board after the rotation
+     */
     @Override
     public BoardViewData onRotateEvent(MoveEvent event) {
         return updateBoardViewData(engine::rotate); // Using method reference
     }
 
+    /**
+     * Starts a new game by resetting the GameEngine and updating the display.
+     */
     @Override
     public void createNewGame() {
         engine.newGame();
         updateGameDisplay();
     }
 
+    /**
+     * @return a {@link BoardViewData} object representing the ghost piece on the board
+     */
     @Override
     public BoardViewData getGhostPiece() {
         return engine.getGhostPiece();
     }
 
+    /**
+     * @return the current score.
+     */
     @Override
     public int getScore() {
         return engine.getScore();
     }
 
+    /**
+     * @return the total lines cleared.
+     */
     @Override
     public int getTotalLinesCleared() {
         return engine.getTotalLinesCleared();
     }
 
+    /**
+     * @param event  the move event containing the source of the hard drop action
+     * @return a {@link BoardViewData} object representing the updated game board after the hard drop.
+     */
     @Override
     public BoardViewData onHardDropEvent(MoveEvent event) {
         return updateBoardViewData(engine::hardDrop); // Using method reference
     }
 
+    /**
+     * @param event  event the move event containing the source of the hold action.
+     * @return a {@link BoardViewData} object representing the updated game board after the hold.
+     */
     @Override
     public BoardViewData onHoldEvent(MoveEvent event) {
         BoardViewData data = engine.hold();
@@ -83,6 +120,9 @@ public class GameController implements InputEventListener {
         return data;
     }
 
+    /**
+     * @return the current level of the game.
+     */
     @Override
     public int getLevel() {
         return engine.getLevel();

@@ -13,10 +13,18 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+/**
+ * The HomeScreen class represents the initial screen of Tetris.
+ */
 public class HomeScreen {
 
     private static final String FONT_PATH = "/digital.ttf";
 
+    /**
+     * @param stage The primary stage for the scene.
+     * @param startGameCallback A callback function to start the game when the "Start Game" button is pressed.
+     * @return The Scene object representing the home screen.
+     */
     public static Scene create(Stage stage, Runnable startGameCallback) {
         StackPane root = new StackPane();
 

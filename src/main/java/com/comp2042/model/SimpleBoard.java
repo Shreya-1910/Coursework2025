@@ -8,6 +8,9 @@ import com.comp2042.view.BoardViewData;
 import java.awt.Point;
 import java.util.List;
 
+/**
+ * The SimpleBoard class represents the game board for Tetris.
+ */
 public class SimpleBoard implements Board {
 
     private final int width;
@@ -22,6 +25,10 @@ public class SimpleBoard implements Board {
     private Brick heldBrick = null;          // stores the currently held brick
     private boolean hasHeldThisTurn = false; // prevents double hold until new brick spawns
 
+    /**
+     * @param width The width of the board
+     * @param height The height of the board.
+     */
     public SimpleBoard(int width, int height) {
         this.width = width;
         this.height = height;
@@ -31,6 +38,9 @@ public class SimpleBoard implements Board {
         score = new Score();
     }
 
+    /**
+     * @return true if the brick move down and false if it collided.
+     */
     @Override
     public boolean moveBrickDown() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -45,6 +55,9 @@ public class SimpleBoard implements Board {
         }
     }
 
+    /**
+     * @return true if the brick moved left and false if it collided.
+     */
     @Override
     public boolean moveBrickLeft() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -59,6 +72,9 @@ public class SimpleBoard implements Board {
         }
     }
 
+    /**
+     * @return true if the brick moved right and false if it collided.
+     */
     @Override
     public boolean moveBrickRight() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -73,6 +89,9 @@ public class SimpleBoard implements Board {
         }
     }
 
+    /**
+     * @return true if the brick was rotated successfully and false if it collided.
+     */
     @Override
     public boolean rotateLeftBrick() {
         int[][] currentMatrix = MatrixOperations.copy(currentGameMatrix);
@@ -86,6 +105,9 @@ public class SimpleBoard implements Board {
         }
     }
 
+    /**
+     * @return true if new brick was placed and false if it was blocked.
+     */
     @Override
     public boolean createNewBrick() {
         Brick currentBrick = brickGenerator.getBrick();
@@ -103,6 +125,9 @@ public class SimpleBoard implements Board {
 
     // hold feature
 
+    /**
+     * Holds current brick. Prevents holding more than once per turn.
+     */
     public void holdBrick() {
         if (hasHeldThisTurn)
             return; // prevent holding twice
@@ -123,15 +148,24 @@ public class SimpleBoard implements Board {
         hasHeldThisTurn = true;
     }
 
+    /**
+     * @return The held brick or null if none is held.
+     */
     public Brick getHeldBrick() {
         return heldBrick;
     }
 
+    /**
+     * @return A 2d array representing the current state of the game board.
+     */
     @Override
     public int[][] getBoardMatrix() {
         return currentGameMatrix;
     }
 
+    /**
+     * @return A BoardViewData object containing information about the current board state.
+     */
     @Override
     public BoardViewData getViewData() {
 
@@ -148,6 +182,9 @@ public class SimpleBoard implements Board {
         );
     }
 
+    /**
+     * Merges the current brick into the game board.
+     */
     @Override
     public void mergeBrickToBackground() {
         currentGameMatrix = MatrixOperations.merge(currentGameMatrix,
@@ -156,6 +193,9 @@ public class SimpleBoard implements Board {
                 (int) currentOffset.getY());
     }
 
+    /**
+     * @return A ClearRow object containing the number of cleared rows and the updated board matrix.
+     */
     @Override
     public ClearRow clearRows() {
         ClearRow clearRow = MatrixOperations.checkRemoving(currentGameMatrix);
@@ -163,11 +203,17 @@ public class SimpleBoard implements Board {
         return clearRow;
     }
 
+    /**
+     * @return The Score object representing the current score.
+     */
     @Override
     public Score getScore() {
         return score;
     }
 
+    /**
+     * Resets the game state for new game.
+     */
     @Override
     public void newGame() {
         currentGameMatrix = new int[width][height];
@@ -177,11 +223,17 @@ public class SimpleBoard implements Board {
         createNewBrick();
     }
 
+    /**
+     * @return A 2D array representing the shape of the held brick, or null if no brick is held.
+     */
     @Override
     public int[][] getHeldShape() {
         return heldBrick == null ? null : heldBrick.getShapeMatrix().get(0);
     }
 
+    /**
+     * @param newMatrix The new game board matrix to set.
+     */
     @Override
     public void setBoardMatrix(int[][] newMatrix) {
         this.currentGameMatrix = new int[newMatrix.length][];
