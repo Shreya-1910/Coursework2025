@@ -53,6 +53,9 @@ public class BrickRotator {
         currentShape = 0;
     }
 
+    /**
+     * @return the current brick being rotated.
+     */
     public Brick getBrick() {
         return brick;
     }

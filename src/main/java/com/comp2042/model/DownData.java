@@ -24,14 +24,23 @@ public final class DownData {
         this.gameOver = gameOver;
     }
 
+    /**
+     * @return A {@link ClearRow} object containing the number of rows cleared and the updated board state.
+     */
     public ClearRow getClearRow() {
         return clearRow;
     }
 
+    /**
+     * @return A {@link BoardViewData} object representing the current visual state of the game board.
+     */
     public BoardViewData getViewData() {
         return boardViewData;
     }
 
+    /**
+     * @return true if the game is over, otherwise false.
+     */
     public boolean isGameOver() {
         return gameOver;
     }

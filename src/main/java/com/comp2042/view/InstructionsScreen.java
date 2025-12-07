@@ -10,8 +10,16 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
+/**
+ * The InstructionsScreen class represents the screen that displays the instructions for Tetris.
+ */
 public class InstructionsScreen {
 
+    /**
+     * @param stage The primary stage for the scene.
+     * @param startGameCallback A callback function to trigger the start of the game from the home screen.
+     * @return The Scene object representing the instructions screen.
+     */
     public static Scene create(Stage stage, Runnable startGameCallback) {
         StackPane root = new StackPane();
         root.setStyle("-fx-background-color: #0a001a;");
@@ -159,6 +167,10 @@ public class InstructionsScreen {
         return scene;
     }
 
+    /**
+     * @param box The VBox to which the control point is added.
+     * @param text The control instruction text.
+     */
     private static void addControlPoint(VBox box, String text) {
         HBox pointBox = new HBox(10);
         pointBox.setAlignment(Pos.CENTER_LEFT);
@@ -173,6 +185,11 @@ public class InstructionsScreen {
         pointBox.getChildren().add(point);
         box.getChildren().add(pointBox);
     }
+
+    /**
+     * @param box The VBox to which the gameplay point is added.
+     * @param text The gameplay text.
+     */
     private static void addGameplayPoint(VBox box, String text) {
         HBox pointBox = new HBox(10);
         pointBox.setAlignment(Pos.CENTER_LEFT);
@@ -188,6 +205,9 @@ public class InstructionsScreen {
         box.getChildren().add(pointBox);
     }
 
+    /**
+     * @param container  The container Pane in which labels should have the shadow effect applied.
+     */
     private static void applyTextShadows(Pane container) {
         for (javafx.scene.Node node : container.getChildren()) {
             if (node instanceof Label) {
@@ -202,6 +222,9 @@ public class InstructionsScreen {
         }
     }
 
+    /**
+     * @param pane The Pane whose children labels should have the shadow effect applied.
+     */
     private static void applyTextShadowsToChildren(Pane pane) {
         for (javafx.scene.Node node : pane.getChildren()) {
             if (node instanceof Label) {

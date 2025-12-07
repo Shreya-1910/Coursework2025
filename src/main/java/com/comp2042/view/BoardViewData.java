@@ -5,6 +5,10 @@ import java.util.List;
 import java.util.ArrayList;
 
 
+/**
+ * Represents the view data for the game board, including the current brick,
+ * its position, the next brick, the next three upcoming bricks, and the held brick.
+ */
 public final class BoardViewData {
 
     private final int[][] brickData;
@@ -20,8 +24,14 @@ public final class BoardViewData {
 
     private final boolean ghost;
 
+
     /**
-     * This is used for normal bricks.
+     * @param brickData The current brick's shape
+     * @param xPosition The X position of the current brick on the board.
+     * @param yPosition The Y position of the current brick on the board.
+     * @param nextBrickData The shape of the next brick
+     * @param nextThreeData List of the shapes of the next three bricks.
+     * @param holdBrickData The shape of the held brick, or null if no brick is held.
      */
     public BoardViewData(int[][] brickData, int xPosition, int yPosition,
                          int[][] nextBrickData,
@@ -39,9 +49,12 @@ public final class BoardViewData {
         this.ghost = false;  //default
     }
 
+
     /**
-     * New for ghost pieces.
-     * nextBrickData is left null because ghosts do not need a next brick.
+     * @param brickData The shape of the ghost piece.
+     * @param xPosition The X position of the ghost piece on the board.
+     * @param yPosition The Y position of the ghost piece on the board.
+     * @param ghost Boolean flag to indicate this is a ghost piece.
      */
     public BoardViewData(int[][] brickData, int xPosition, int yPosition, boolean ghost) {
         this.brickData = brickData;
@@ -50,24 +63,34 @@ public final class BoardViewData {
         this.ghost = ghost;
         this.nextBrickData = null; // ghost does not show next brick
         this.nextThreeData = null;
-
-        // ghost has no held piece
         this.holdBrickData = null;
     }
 
 
+    /**
+     * @return A 2D array representing the current brick's shape.
+     */
     public int[][] getBrickData() {
         return MatrixOperations.copy(brickData);
     }
 
+    /**
+     * @return The X position of the current brick.
+     */
     public int getxPosition() {
         return xPosition;
     }
 
+    /**
+     * @return The Y position of the current brick.
+     */
     public int getyPosition() {
         return yPosition;
     }
 
+    /**
+     * @return the next brick's shape.
+     */
     public int[][] getNextBrickData() {
         return MatrixOperations.copy(nextBrickData);
     }
@@ -79,6 +102,11 @@ public final class BoardViewData {
         return ghost;
     }
 
+    /**
+     * @param list The list of 2D arrays (int[][]) to be copied.
+     * @return A new list containing deep copies of each 2D array in the input list.If the input list is null,
+     * returns null.
+     */
     private List<int[][]> copyList(List<int[][]> list) {
         if (list == null) return null;
 
@@ -89,12 +117,18 @@ public final class BoardViewData {
         return result;
     }
 
-    // returns next 3 bricks
+    /**
+     * @return A list of 2D arrays representing the shapes of the next three upcoming bricks.
+     * This list may be null if there are no upcoming bricks.
+     */
     public List<int[][]> getNextThreeData() {
         return nextThreeData;
     }
 
-    //getter for held piece
+
+    /**
+     * @return A 2D array representing the shape of the held brick, or null if no brick is held.
+     */
     public int[][] getHoldBrickData() {
         return holdBrickData == null ? null : MatrixOperations.copy(holdBrickData);
     }

@@ -5,10 +5,16 @@ import com.comp2042.model.MatrixOperations;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents "T" shaped brick.
+ */
 final class TBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
+    /**
+     * Constructs "S" brick with its pre defined shapes.
+     */
     public TBrick() {
         brickMatrix.add(new int[][]{
                 {0, 0, 0, 0},
@@ -36,6 +42,9 @@ final class TBrick implements Brick {
         });
     }
 
+    /**
+     * @return A list of 2D integer matrices representing the "T" brick's shape in four different orientations.
+     */
     @Override
     public List<int[][]> getShapeMatrix() {
         return MatrixOperations.deepCopyList(brickMatrix);

@@ -7,6 +7,10 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 import java.util.List;
 
+/**
+ * Handles the rendering of the game ui such as the drawing of the game board,
+ * the current brick,the next 3 pieces,the hold piece and the ghost piece.
+ */
 public class GameRenderer {
     private static final int BRICK_SIZE = 20;
     private static final int GARBAGE_BLOCK_VALUE = 8;
@@ -20,6 +24,14 @@ public class GameRenderer {
     private final GridPane nextPiece3;
     private final GridPane holdPiece;
 
+    /**
+     * @param gamePanel the main panel where the game board is displayed
+     * @param brickPanel the panel for displaying the current brick
+     * @param nextPiece1 the panel for displaying the next piece in the game
+     * @param nextPiece2 the panel for displaying the second next piece in the game
+     * @param nextPiece3 the panel for displaying the third next piece in the game.
+     * @param holdPiece the panel for displaying the held piece
+     */
     public GameRenderer(GridPane gamePanel, GridPane brickPanel,
                         GridPane nextPiece1, GridPane nextPiece2, GridPane nextPiece3,
                         GridPane holdPiece) {
@@ -31,6 +43,9 @@ public class GameRenderer {
         this.holdPiece = holdPiece;
     }
 
+    /**
+     * @param boardMatrix the 2D array representing the current state of the game board.
+     */
     public void initDisplayMatrix(int[][] boardMatrix) {
         displayMatrix = new Rectangle[boardMatrix.length][boardMatrix[0].length];
         for (int i = 2; i < boardMatrix.length; i++) {
@@ -43,6 +58,9 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param brick the current {@link BoardViewData} object representing the brick
+     */
     public void initBrickRectangles(BoardViewData brick) {
         rectangles = new Rectangle[brick.getBrickData().length][brick.getBrickData()[0].length];
         for (int i = 0; i < brick.getBrickData().length; i++) {
@@ -55,11 +73,18 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param brick the current {@link BoardViewData} object representing the brick
+     */
     public void positionBrickPanel(BoardViewData brick) {
         brickPanel.setLayoutX(gamePanel.getLayoutX() + brick.getxPosition() * brickPanel.getVgap() + brick.getxPosition() * BRICK_SIZE);
         brickPanel.setLayoutY(-42 + gamePanel.getLayoutY() + brick.getyPosition() * brickPanel.getHgap() + brick.getyPosition() * BRICK_SIZE);
     }
 
+    /**
+     * @param i the integer value representing the brick type
+     * @return a {@link Paint} object representing the fill color for the brick
+     */
     public Paint getFillColor(int i) {
         Paint returnPaint;
         switch (i) {
@@ -97,6 +122,9 @@ public class GameRenderer {
         return returnPaint;
     }
 
+    /**
+     * clears ghost pieces by resetting its opacity to 1.
+     */
     public void clearGhost() {
         if (displayMatrix == null) return;
 
@@ -107,6 +135,11 @@ public class GameRenderer {
         }
     }
 
+
+    /**
+     * Refreshes ghost piece.
+     * @param ghost the {@link BoardViewData} object representing the ghost piece
+     */
     public void refreshGhost(BoardViewData ghost) {
         if (ghost == null || !ghost.isGhost()) return;
         int[][] shape = ghost.getBrickData();
@@ -126,6 +159,10 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param brick the {@link BoardViewData} object representing the current brick.
+     * @param isPaused whether the game is paused.
+     */
     public void refreshBrick(BoardViewData brick, boolean isPaused) {
         if (isPaused) return;
 
@@ -145,6 +182,10 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param shape the shape data of the next piece
+     * @param target the {@link GridPane} to display the next piece preview
+     */
     private void drawPreview(int[][] shape, GridPane target) {
         target.getChildren().clear();
         if (shape == null) return;
@@ -157,6 +198,9 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param board the 2D array representing the current state of the game board
+     */
     public void refreshGameBackground(int[][] board) {
         for (int i = 2; i < board.length; i++) {
             for (int j = 0; j < board[i].length; j++) {
@@ -165,12 +209,19 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @param color the integer value representing the brick's color
+     * @param rectangle the {@link Rectangle} object whose properties will be updated
+     */
     private void setRectangleData(int color, Rectangle rectangle) {
         rectangle.setFill(getFillColor(color));
         rectangle.setArcHeight(9);
         rectangle.setArcWidth(9);
     }
 
+    /**
+     * @param heldShape a 2d array representing the shape of the held piece.
+     */
     public void updateHoldPiece(int[][] heldShape) {
         holdPiece.getChildren().clear();
         if (heldShape == null) return;
@@ -183,7 +234,26 @@ public class GameRenderer {
         }
     }
 
+    /**
+     * @return the integer value represnting the garbage block.
+     */
     public static int getGarbageBlockValue() {
         return GARBAGE_BLOCK_VALUE;
     }
+
+    /**
+     * @return a 2D array of {@link Rectangle} objects representing the current state of the game board.
+     */
+    public Rectangle[][] getDisplayMatrix() {
+        return displayMatrix;
+    }
+
+    /**
+     * @return a 2D array of {@link Rectangle} objects representing the current brick's shape.
+     */
+    public Rectangle[][] getRectangles() {
+        return rectangles;
+    }
+
+
 }

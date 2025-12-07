@@ -14,8 +14,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+/**
+ * The NotificationPanel class represents a UI panel that displays a notification message on the screen.
+ */
 public class NotificationPanel extends BorderPane {
 
+    /**
+     * @param text The message to display on the panel.
+     */
     public NotificationPanel(String text) {
         setMinHeight(200);
         setMinWidth(220);
@@ -28,6 +34,9 @@ public class NotificationPanel extends BorderPane {
 
     }
 
+    /**
+     * @param list The list of nodes that the notification panel will be removed from once the animation finishes.
+     */
     public void showScore(ObservableList<Node> list) {
         FadeTransition ft = new FadeTransition(Duration.millis(2000), this);
         ft.setFromValue(1);

@@ -25,7 +25,9 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 /**
- * Refactored GUI Controller using GameLoop.
+ *Controller class for handling the GUI interactions in the game.
+ *This class manages the game interface, including handling user input,
+ *game state updates, rendering, and controlling the game's logic flow.
  */
 public class GuiController implements Initializable {
 
@@ -55,7 +57,12 @@ public class GuiController implements Initializable {
     private InputHandler inputHandler;
     private HighScoreManager highScoreManager;
     private GameRenderer gameRenderer;
+    private GarbageManager garbageManager; // Added GarbageManager
 
+    /**
+     * @param location of FXML file.
+     * @param resources The resources to load.
+     */
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         Font.loadFont(getClass().getClassLoader().getResource("digital.ttf").toExternalForm(), 38);
@@ -67,7 +74,9 @@ public class GuiController implements Initializable {
         inputHandler = new InputHandler(isPause, isGameOver, this, null);
 
         highScoreManager.updateHighScoreDisplay();
-        initializeGarbageInfo();
+
+        // Initialize GarbageManager instead of the old method
+        garbageManager = new GarbageManager(garbageInfoLabel);
 
         gamePanel.setOnKeyPressed(this::handleKeyPress);
 
@@ -79,24 +88,27 @@ public class GuiController implements Initializable {
         reflection.setTopOffset(-12);
     }
 
+    /**
+     * @param keyEvent The key event triggered by the user.
+     */
     private void handleKeyPress(KeyEvent keyEvent) {
         if (eventListener == null) return;
         inputHandler.handleKeyPress(keyEvent);
         highScoreManager.updateHighScoreDisplay();
     }
 
-    private void initializeGarbageInfo() {
-        if (garbageInfoLabel != null) {
-            garbageInfoLabel.setText("Garbage: Off");
-            garbageInfoLabel.setTextFill(Color.YELLOW);
-        }
-    }
-
+    /**
+     * @param eventListener The input event listener.
+     */
     public void setEventListener(InputEventListener eventListener) {
         this.eventListener = eventListener;
         inputHandler = new InputHandler(isPause, isGameOver, this, eventListener);
     }
 
+    /**
+     * @param boardMatrix The matrix representing the game board.
+     * @param brick The brick data for initializing the view.
+     */
     public void initGameView(int[][] boardMatrix, BoardViewData brick) {
         gameRenderer.initDisplayMatrix(boardMatrix);
         gameRenderer.initBrickRectangles(brick);
@@ -106,6 +118,9 @@ public class GuiController implements Initializable {
         gameLoop.start();
     }
 
+    /**
+     * @param event The move event triggered for moving the brick down.
+     */
     public void moveDown(MoveEvent event) {
         if (!isPause.getValue()) {
             DownData downData = eventListener.onDownEvent(event);
@@ -124,40 +139,38 @@ public class GuiController implements Initializable {
             gameRenderer.refreshGhost(eventListener.getGhostPiece());
             gameRenderer.refreshBrick(downData.getViewData(), isPause.get());
             linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
-            updateGarbageInfo();
+            garbageManager.updateGarbageStatus(currentLevel);
         }
         gamePanel.requestFocus();
     }
 
+    /**
+     * Updates the current game level and adjusts the game speed accordingly.
+     */
     private void updateLevelAndSpeed() {
         int totalLines = eventListener.getTotalLinesCleared();
         currentLevel = totalLines / linesPerLevel + 1;
-        if (levelLabel != null) levelLabel.setText("Level: " + currentLevel);
+
+        if (levelLabel != null) {
+            levelLabel.setText("Level: " + currentLevel);
+        }
 
         int newSpeed = Math.max(80, 400 - (currentLevel - 1) * 50);
-        if (gameLoop != null) gameLoop.setSpeed(newSpeed);
-
-        updateGarbageInfo();
-    }
-
-    private void updateGarbageInfo() {
-        if (garbageInfoLabel != null && eventListener != null) {
-            if (eventListener.getLevel() >= 3) {
-                garbageInfoLabel.setText("Garbage: ON");
-                garbageInfoLabel.setTextFill(Color.RED);
-            } else {
-                garbageInfoLabel.setText("Garbage: Off");
-                garbageInfoLabel.setTextFill(Color.YELLOW);
-            }
+        if (gameLoop != null) {
+            gameLoop.setSpeed(newSpeed);
         }
+
+        garbageManager.updateGarbageStatus(currentLevel);
     }
 
+    /**
+     *  Performs a hard drop for the current piece, moves it to the bottom, and updates the game state.
+     */
     void hardDrop() {
         int before = eventListener.getScore();
         BoardViewData data = eventListener.onHardDropEvent(new MoveEvent(EventType.HARDDROP, EventSource.USER));
         int after = eventListener.getScore();
         int gained = after - before;
-
         if (gained > 0) {
             NotificationPanel np = new NotificationPanel("+" + gained);
             np.setTranslateY(0);
@@ -172,8 +185,14 @@ public class GuiController implements Initializable {
         gameRenderer.refreshGhost(eventListener.getGhostPiece());
         gameRenderer.refreshBrick(data, isPause.get());
         updateLevelAndSpeed();
-        updateGarbageInfo();
+
+        // Update garbage status via GarbageManager
+        garbageManager.updateGarbageStatus(currentLevel);
     }
+
+    /**
+     *Toggles the pause state of the game, pausing or resuming gameplay.
+     */
     void togglePause() {
         if (isPause.get()) {
             gameLoop.resume();
@@ -188,10 +207,17 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * @param event The action event triggered by clicking the pause button.
+     */
     @FXML
     private void pauseGame(ActionEvent event) {
         togglePause();
     }
+
+    /**
+     * @param actionEvent The action event triggered when the new game button is clicked.
+     */
     @FXML
     public void newGame(ActionEvent actionEvent) {
         resetGameState();
@@ -203,6 +229,9 @@ public class GuiController implements Initializable {
         gamePanel.requestFocus();
     }
 
+    /**
+     *  Resets the game state, including stopping the game loop and resetting UI elements.
+     */
     private void resetGameState() {
         if (gameLoop != null) gameLoop.stop();
         gameOverPanel.setVisible(false);
@@ -213,9 +242,15 @@ public class GuiController implements Initializable {
         currentLevel = 1;
     }
 
+    /**
+     *Resets the game UI elements such as score and game state displays.
+     */
     private void resetUI() {
         highScoreManager.updateHighScoreDisplay();
-        updateGarbageInfo();
+
+        // Update garbage status via GarbageManager
+        garbageManager.updateGarbageStatus(currentLevel);
+
         gamePanel.requestFocus();
 
         if (pauseButton != null) {
@@ -224,17 +259,26 @@ public class GuiController implements Initializable {
         }
     }
 
+    /**
+     * Clears game-related UI elements like the hold piece and notifications.
+     */
     private void clearGameElements() {
         holdPiece.getChildren().clear();
         groupNotification.getChildren().clear();
     }
 
+    /**
+     * Resets the game logic by refreshing the background and initializing the game state.
+     */
     private void resetGameLogic() {
         gameRenderer.refreshGameBackground(eventListener.onDownEvent(
                 new MoveEvent(EventType.DOWN, EventSource.THREAD)
         ).getViewData().getBrickData());
     }
 
+    /**
+     *Ends the game and displays the game over panel and saves high score.
+     */
     public void gameOver() {
         if (gameLoop != null) gameLoop.stop();
         isGameOver.set(true);
@@ -244,34 +288,58 @@ public class GuiController implements Initializable {
         gameOverPanel.setVisible(true);
     }
 
+    /**
+     * Clears the ghost piece displayed.
+     */
     void clearGhost() {
         gameRenderer.clearGhost();
     }
 
+    /**
+     * @param ghost The new ghost piece data.
+     */
     void refreshGhost(BoardViewData ghost) {
         gameRenderer.refreshGhost(ghost);
     }
 
+    /**
+     * @param brick The new brick piece with the provided data.
+     */
     void refreshBrick(BoardViewData brick) {
         gameRenderer.refreshBrick(brick, isPause.get());
     }
 
+    /**
+     * @param heldShape The shape data for the hold piece.
+     */
     public void updateHoldPiece(int[][] heldShape) {
         gameRenderer.updateHoldPiece(heldShape);
     }
 
+    /**
+     * @return the current game level.
+     */
     public int getCurrentLevel() {
         return currentLevel;
     }
 
+    /**
+     * @return the value of the garbage block.
+     */
     public static int getGarbageBlockValue() {
         return GameRenderer.getGarbageBlockValue();
     }
 
+    /**
+     * @param board The board data to refresh the background with.
+     */
     public void refreshGameBackground(int[][] board) {
         gameRenderer.refreshGameBackground(board);
     }
 
+    /**
+     * @param scoreProperty The score property to bind the score label to.
+     */
     public void bindScore(IntegerProperty scoreProperty) {
         scoreLabel.textProperty().bind(scoreProperty.asString("Score: %d"));
     }

@@ -6,6 +6,10 @@ import java.util.Deque;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * A brick generator that produces random bricks.The generator maintains a queue of upcoming bricks and provides methods
+ * to retrieve the current brick, the next brick and a preview of the next three bricks in the queue.
+ */
 public class RandomBrickGenerator implements BrickGenerator {
 
     private final List<Brick> brickList;
@@ -14,6 +18,9 @@ public class RandomBrickGenerator implements BrickGenerator {
 //preview for 3 bricks
     private static final int QUEUE_SIZE = 3;
 
+    /**
+     * Constructs a new RandomBrickGenerator and initializes the brick list which randomly selects.
+     */
     public RandomBrickGenerator() {
         brickList = new ArrayList<>();
         brickList.add(new IBrick());
@@ -31,6 +38,9 @@ public class RandomBrickGenerator implements BrickGenerator {
         }
     }
 
+    /**
+     * @return The current {@link Brick} object that is in play.
+     */
     @Override
     public Brick getBrick() {
         if (nextBricks.size() <= 1) {
@@ -45,6 +55,9 @@ public class RandomBrickGenerator implements BrickGenerator {
         return b;
     }
 
+    /**
+     * @return The next {@link Brick} object to be spawned.
+     */
     @Override
     public Brick getNextBrick() {
         return nextBricks.peek();
@@ -53,7 +66,9 @@ public class RandomBrickGenerator implements BrickGenerator {
         return new ArrayList<>(nextBricks);
     }
 
-    //return the next 3 bricks as shape matrices
+    /**
+     * @return A list of 2D integer matrices representing the shapes of the next three bricks.
+     */
     @Override
     public List<int[][]> getNextThreeShapes() {
         List<int[][]> list = new ArrayList<>();

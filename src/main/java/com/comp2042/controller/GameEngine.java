@@ -85,6 +85,9 @@ public class GameEngine {
         return new DownData(clearRow, board.getViewData(), gameOver);
     }
 
+    /**
+     * Checks and updates the level of the game based on the total lines cleared.
+     */
     private void checkLevelUp() {
         int newLevel = (totalLinesCleared / 5) + 1;
         if (newLevel > level) {
@@ -196,28 +199,44 @@ public class GameEngine {
         updateBoardMatrix(matrix);
     }
 
+
     /**
-     * Helper method to update the board matrix
+     * @param newMatrix the updated board matrix
      */
     private void updateBoardMatrix(int[][] newMatrix) {
     }
 
+    /**
+     *Updates the game speed based on the current level.
+     */
     private void updateSpeed() {
         currentSpeed = Math.max(100, baseSpeed - (level - 1) * 50);
     }
 
+    /**
+     * @return the current speed in milliseconds.
+     */
     public int getCurrentSpeed() {
         return currentSpeed;
     }
 
+    /**
+     * @return the current game level.
+     */
     public int getLevel() {
         return level;
     }
 
+    /**
+     * @return the total number of garbage lines added
+     */
     public int getGarbageLinesAdded() {
         return garbageLinesAdded;
     }
 
+    /**
+     * @return the garbage block value
+     */
     public static int getGarbageBlockValue() {
         return GARBAGE_BLOCK_VALUE;
     }
@@ -251,11 +270,14 @@ public class GameEngine {
      * Resets the board and starts a new game.
      */
     public void newGame() {
-        board.newGame();
         totalLinesCleared = 0;
         level = 1;
         currentSpeed = baseSpeed;
         garbageLinesAdded = 0;
+        // Reset the game board and elements
+        board.newGame();
+        updateSpeed();
+
     }
     /**
      * Returns the current board matrix.
@@ -272,18 +294,23 @@ public class GameEngine {
         return board.getViewData();
     }
     /**
-     * Returns the Score object for the current game.
-     * @return Score object
+     * @return the current score.
      */
-    //score for gui
     public int getScore() {
         return board.getScore().scoreProperty().get();
     }
+
+    /**
+     * @return the {@link Score} object representing the score data
+     */
     //full score data
     public Score getScoreObject() {
         return board.getScore();
     }
 
+    /**
+     * @return updated {@link BoardViewData} after the hold.
+     */
     public BoardViewData hold() {
         board.holdBrick();
         return board.getViewData();
@@ -329,14 +356,17 @@ public class GameEngine {
         return board.getViewData();
     }
 
+    /**
+     * @return the total lines cleared.
+     */
     public int getTotalLinesCleared() {
         return totalLinesCleared;
     }
 
-    //Ghost brick logic
+
     /**
-     * Calculates the ghost piece (the position where the current brick would land
-     * if dropped straight down).
+     * Calculates the ghost piece. The position where the current brick would land
+     * if dropped straight down.
      * @return BoardViewData representing the ghost piece's final position
      */
     public BoardViewData getGhostPiece() {
@@ -352,6 +382,9 @@ public class GameEngine {
         return new BoardViewData(shape, ghostX, ghostY, true);//true=ghost
     }
 
+    /**
+     * @return a 2D integer array representing the current held shape, or {@code null} if the board is not initialized.
+     */
     public int[][] getHeldShape() {
         if (board == null) return null;
         return board.getHeldShape();
@@ -387,4 +420,13 @@ public class GameEngine {
         }
         return true;
     }
+
+    /**
+     * @param random the random generator to use
+     */
+    // inside GameEngine
+    public void setRandom(Random random) {
+        this.random = random;
+    }
+
 }

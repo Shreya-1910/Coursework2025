@@ -15,7 +15,7 @@
             <GridPane fx:id="gamePanel" hgap="1" vgap="1" layoutY="30" layoutX="40"/>
         </center>
     </BorderPane>
-    <VBox layoutX="250" layoutY="10" spacing="10">
+    <VBox layoutX="250" layoutY="180" spacing="10">
 
         <Label fx:id="scoreLabel"
                text="Score: 0"
@@ -41,7 +41,7 @@
 
     <BorderPane fx:id="nextPiecesContainer"
                 layoutX="250"
-                layoutY="200"
+                layoutY="20"
                 prefWidth="100"
                 prefHeight="100"
                 style="-fx-border-color: white; -fx-padding: 10; -fx-border-width: 2;">
@@ -54,24 +54,24 @@
 
         <center>
             <HBox fx:id="nextPiecesVBox"
-                  spacing="10"
+                  spacing="60"
                   alignment="TOP_CENTER">
 
                 <GridPane fx:id="nextPiece1"
                           hgap="1" vgap="1"
-                          minWidth="90" minHeight="90"
+                          minWidth="150" minHeight="90"
                           alignment="CENTER"
                           style="-fx-border-color: white; -fx-padding: 5;"/>
 
                 <GridPane fx:id="nextPiece2"
                           hgap="1" vgap="1"
-                          minWidth="90" minHeight="90"
+                          minWidth="150" minHeight="90"
                           alignment="CENTER"
                           style="-fx-border-color: white; -fx-padding: 5;"/>
 
                 <GridPane fx:id="nextPiece3"
                           hgap="1" vgap="1"
-                          minWidth="90" minHeight="90"
+                          minWidth="150" minHeight="90"
                           alignment="CENTER"
                           style="-fx-border-color: white; -fx-padding: 5;"/>
             </HBox>
@@ -79,10 +79,10 @@
     </BorderPane>
 
     <BorderPane fx:id="holdContainer"
-                layoutX="275"
-                layoutY="365"
-                prefWidth="100"
-                prefHeight="100"
+                layoutX="600"
+                layoutY="200"
+                prefWidth="150"
+                prefHeight="90"
                 style="-fx-border-color:White; -fx-padding: 10; -fx-border-width: 2;">
 
         <top>
@@ -94,13 +94,13 @@
         <center>
             <GridPane fx:id="holdPiece"
                       hgap="1" vgap="1"
-                      minWidth="90" minHeight="90"
+                      minWidth="120" minHeight="90"
                       alignment="CENTER"
                       style="-fx-border-color: White; -fx-padding: 5;"/>
         </center>
     </BorderPane>
 
-    <VBox layoutX="415"
+    <VBox layoutX="600"
           layoutY="400"
           spacing="10"
           alignment="CENTER">
