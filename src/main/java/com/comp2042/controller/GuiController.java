@@ -24,7 +24,6 @@ import javafx.scene.text.Font;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-
 /**
  *Controller class for handling the GUI interactions in the game.
  *This class manages the game interface, including handling user input,
@@ -58,6 +57,7 @@ public class GuiController implements Initializable {
     private InputHandler inputHandler;
     private HighScoreManager highScoreManager;
     private GameRenderer gameRenderer;
+    private GarbageManager garbageManager; // Added GarbageManager
 
     /**
      * @param location of FXML file.
@@ -74,7 +74,9 @@ public class GuiController implements Initializable {
         inputHandler = new InputHandler(isPause, isGameOver, this, null);
 
         highScoreManager.updateHighScoreDisplay();
-        initializeGarbageInfo();
+
+        // Initialize GarbageManager instead of the old method
+        garbageManager = new GarbageManager(garbageInfoLabel);
 
         gamePanel.setOnKeyPressed(this::handleKeyPress);
 
@@ -93,16 +95,6 @@ public class GuiController implements Initializable {
         if (eventListener == null) return;
         inputHandler.handleKeyPress(keyEvent);
         highScoreManager.updateHighScoreDisplay();
-    }
-
-    /**
-     *Initializes the garbage info label, which tracks whether garbage is on or off.
-     */
-    private void initializeGarbageInfo() {
-        if (garbageInfoLabel != null) {
-            garbageInfoLabel.setText("Garbage: Off");
-            garbageInfoLabel.setTextFill(Color.YELLOW);
-        }
     }
 
     /**
@@ -147,7 +139,7 @@ public class GuiController implements Initializable {
             gameRenderer.refreshGhost(eventListener.getGhostPiece());
             gameRenderer.refreshBrick(downData.getViewData(), isPause.get());
             linesClearedLabel.setText("Lines cleared: " + eventListener.getTotalLinesCleared());
-            updateGarbageInfo();
+            garbageManager.updateGarbageStatus(currentLevel);
         }
         gamePanel.requestFocus();
     }
@@ -168,22 +160,7 @@ public class GuiController implements Initializable {
             gameLoop.setSpeed(newSpeed);
         }
 
-        updateGarbageInfo();
-    }
-
-    /**
-     * Updates the garbage information label based on the current game level.
-     */
-    private void updateGarbageInfo() {
-        if (garbageInfoLabel != null && eventListener != null) {
-            if (eventListener.getLevel() >= 3) {
-                garbageInfoLabel.setText("Garbage Brick: ON");
-                garbageInfoLabel.setTextFill(Color.RED);
-            } else {
-                garbageInfoLabel.setText("Garbage Brick: Off");
-                garbageInfoLabel.setTextFill(Color.YELLOW);
-            }
-        }
+        garbageManager.updateGarbageStatus(currentLevel);
     }
 
     /**
@@ -208,7 +185,9 @@ public class GuiController implements Initializable {
         gameRenderer.refreshGhost(eventListener.getGhostPiece());
         gameRenderer.refreshBrick(data, isPause.get());
         updateLevelAndSpeed();
-        updateGarbageInfo();
+
+        // Update garbage status via GarbageManager
+        garbageManager.updateGarbageStatus(currentLevel);
     }
 
     /**
@@ -268,7 +247,10 @@ public class GuiController implements Initializable {
      */
     private void resetUI() {
         highScoreManager.updateHighScoreDisplay();
-        updateGarbageInfo();
+
+        // Update garbage status via GarbageManager
+        garbageManager.updateGarbageStatus(currentLevel);
+
         gamePanel.requestFocus();
 
         if (pauseButton != null) {
