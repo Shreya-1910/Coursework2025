@@ -45,7 +45,7 @@ public class Main extends Application {
             // Create game controller AFTER the GUI is loaded
             new GameController(gui);
 
-            primaryStage.setScene(new Scene(root, 300, 510));
+            primaryStage.setScene(new Scene(root, 1000, 510));
 
         } catch (Exception e) {
             e.printStackTrace();

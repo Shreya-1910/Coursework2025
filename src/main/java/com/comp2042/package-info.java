@@ -13,8 +13,6 @@
  * </ul>
  * <p>
  * This root package ties together all modules to create a complete, playable Tetris game.
- * It demonstrates the use of JavaFX, object-oriented design, and modular project organization.
- *
  * @author Shreya
  * @version 1.0
  */

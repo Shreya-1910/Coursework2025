@@ -6,7 +6,7 @@
  * <ul>
  *     <li>{@link com.comp2042.logic.bricks.Brick} - Interface representing a generic Tetris brick.</li>
  *     <li>{@link com.comp2042.logic.bricks.BrickGenerator} - Interface for generating new bricks.</li>
- *     <li>{@link com.comp2042.logic.bricks.RandomBrickGenerator} - Implements {@link BrickGenerator} to generate random bricks.</li>
+ *     <li>{@link com.comp2042.logic.bricks.RandomBrickGenerator} - Implements Brick generator to generate random bricks.</li>
  *     <li>{@link com.comp2042.logic.bricks.JBrick} - Represents the J-shaped Tetris brick.</li>
  *     <li>{@link com.comp2042.logic.bricks.SBrick} - Represents the S-shaped Tetris brick.</li>
  *     <li>{@link com.comp2042.logic.bricks.TBrick} - Represents the T-shaped Tetris brick.</li>
