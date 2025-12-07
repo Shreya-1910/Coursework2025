@@ -11,8 +11,14 @@ import javafx.stage.Stage;
 
 import java.net.URL;
 
+/**
+ * The main entry point of the Tetris game.
+ */
 public class Main extends Application {
 
+    /**
+     * @param primaryStage The primary stage for the application.
+     */
     @Override
     public void start(Stage primaryStage) {
 
@@ -24,8 +30,9 @@ public class Main extends Application {
         primaryStage.show();
     }
 
+
     /**
-     * Loads the real game screen (gameLayout.fxml).
+     * @param primaryStage The primary stage for the application.
      */
     private void startGame(Stage primaryStage) {
         try {
@@ -45,6 +52,9 @@ public class Main extends Application {
         }
     }
 
+    /**
+     * @param args command line arguments.
+     */
     public static void main(String[] args) {
         launch(args);
     }

@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents "Z" brick in the game.
  */
-final class ZBrick implements Brick {
+public final class ZBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 

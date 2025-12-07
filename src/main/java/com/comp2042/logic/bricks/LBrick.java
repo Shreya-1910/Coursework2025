@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Represents the "I" brick.
  */
-final class LBrick implements Brick {
+public final class LBrick implements Brick {
 
     private final List<int[][]> brickMatrix = new ArrayList<>();
 
