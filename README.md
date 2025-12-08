@@ -320,7 +320,7 @@ As part of improving maintainability, readability, and testability, the followin
 - Switch statement used in mapping colours in GuiController was identified as a code smell.Switches centralize behavior, are hard to maintain, and violate OOP principles.
 - The block colour mapping was refactored into an **enum-based design** using a `BlockType` enum, where each block type encapsulates its own colour data.
 - This enum approach replaces type codes with **polymorphic behavior**, improving maintainability, readability, and extensibility.
-- Classes were reorganized into logical packages such as `model`, `view`, `controller`, `events`, `logic`, and `bricks`, improving **project structure, discoverability, and maintainability**.
+- Classes were reorganized into logical packages such as `model`, `view`, `controller`, `events`, `logic.bricks` improving **project structure, discoverability, and maintainability**.
 
 #### 2. Existing classes modified
 #### 1. `SimpleBoard`
@@ -552,4 +552,5 @@ and select **Run 'TestClassName'**. IntelliJ will automatically compile and exec
 - However, due to **time constraints** and **technical challenges**, this feature was not implemented. Some of the issues encountered included:
   - Handling the explosion logic and ensuring it updated both the game board and the UI correctly.
   - Ensuring consistent collision detection and board updates without introducing bugs or crashes.  
+  
 
