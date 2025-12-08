@@ -1,7 +1,5 @@
 # Developing Maintainable Software Coursework
 
-A **Tetris game** developed using **JavaFX** and **Maven** with a strong emphasis on **clean architecture, maintainability, refactoring, and testability**.
-
 
 ## Table of Contents
 
@@ -10,9 +8,10 @@ A **Tetris game** developed using **JavaFX** and **Maven** with a strong emphasi
 3. [How to Run the Game](#how-to-run-the-game)
 4. [Features and Additions](#features-and-additions)
 5. [Refactoring Activities](#refactoring-activities)
-6. [Testing](#testing)
-7. [Unexpected problems](#unexpected-problems)
-8. [Planned features but not implemented](#planned-features-but-not-implemented)
+6. [Design Patterns](#design-patterns)
+7. [Testing](#testing)
+8. [Unexpected problems](#unexpected-problems)
+9. [Planned features but not implemented](#planned-features-but-not-implemented)
 
 
 ---
@@ -311,6 +310,165 @@ As part of improving maintainability, readability, and testability, the followin
 - This enum approach replaces type codes with **polymorphic behavior**, improving maintainability, readability, and extensibility.
 - Classes were reorganized into logical packages such as `model`, `view`, `controller`, `events`, `logic`, and `bricks`, improving **project structure, discoverability, and maintainability**.
 
+#### 2. Existing classes modified
+#### 1. `SimpleBoard`
+- **Original Role:** Managed the Tetris board logic, including brick movement, rotation, and line clearing.
+
+- **Changes Made in Refactored Version:**
+    - **Hold Feature:** Added the ability to hold a brick (`holdBrick()` and `getHeldBrick()`) and prevent holding multiple times per turn (`hasHeldThisTurn`).
+    - **New Brick Offset:** Adjusted the initial spawn position (`currentOffset = new Point(4, 2)`) to prevent new bricks from starting mid-screen.
+    - **View Data Enhancements:** `getViewData()` now provides the next three upcoming bricks and the held brick for UI rendering.
+    - **Decoupled Board State:** Clearly separates the **board state** (`currentGameMatrix`) from **brick state** (`brickRotator` and `currentOffset`).
+    - **Board Reset for New Game:** `newGame()` resets the board, score, and held brick state.
+    - **Utility Methods:** Added `getHeldShape()` and `setBoardMatrix()` to facilitate rendering and testing.
+    - **Cleaned Methods:** Brick movement (`moveBrickDown`, `moveBrickLeft`, `moveBrickRight`) and rotation (`rotateLeftBrick`) are clearer and maintainable.
+
+
+
+#### 2.`GameController`
+
+**Original Role:**  
+Managed game logic directly including brick movement, rotation, score tracking, and game over detection. Acted as the main bridge between user input and the board model.
+
+**Changes Made in Refactored Version:**
+
+- **Decoupled Game Logic:** Introduced `GameEngine` class to handle all core game mechanics, separating concerns between input handling and game logic.
+- **Enhanced Input Events:** Added support for hard drop (`onHardDropEvent`) and hold piece (`onHoldEvent`) functionality with GUI integration.
+- **Ghost Piece Visualization:** Added `getGhostPiece()` method to show where the current piece will land.
+- **Game Statistics:** Added methods to retrieve current score (`getScore`), total lines cleared (`getTotalLinesCleared`), and current level (`getLevel`).
+- **Helper Methods:** Introduced `updateBoardViewData(Runnable action)` to centralize board update logic and `updateGameDisplay()` to handle GUI refreshes, reducing code duplication.
+- **Method References:** Used method references (`engine::moveLeft`, `engine::moveRight`, etc.) for cleaner, more readable code.
+- **Improved Event Handling:** Simplified `onDownEvent()` to delegate all game logic to `GameEngine` and use `DownData` object for game state information.
+- **Package Restructuring:** Moved from `com.comp2042` to `com.comp2042.controller` for better architectural organization.
+
+
+#### 3. `GuiController`
+
+**Original Role:**  
+Managed the Tetris GUI, handled user input directly, rendered the game board and current brick, and controlled basic game state.
+
+**Changes Made in Refactored Version:**
+
+- **Decoupled Rendering:** Introduced `GameRenderer` class to handle all visual rendering, separating UI logic from display logic.
+- **Decoupled Input Handling:** Added `InputHandler` class to manage keyboard input, improving separation of concerns.
+- **Game Loop Management:** Replaced basic `Timeline` with a dedicated `GameLoop` class for better control over game timing and speed.
+- **Enhanced UI Components:** Added support for displaying next three pieces (`nextPiece1`, `nextPiece2`, `nextPiece3`), hold piece area (`holdPiece`), and game statistics (lines cleared, level, high score).
+- **Ghost Piece Visualization:** Added `clearGhost()` and `refreshGhost()` methods to manage ghost piece display.
+- **Level System:** Implemented progressive difficulty with `updateLevelAndSpeed()` that increases speed as more lines are cleared.
+- **Hard Drop Feature:** Added `hardDrop()` method with visual feedback showing points gained.
+- **Pause System:** Enhanced with `ToggleButton` and proper game loop control (`togglePause()`).
+- **High Score Management:** Added `HighScoreManager` class to handle high score tracking and persistence.
+- **Garbage System:** Introduced `GarbageManager` for managing and displaying garbage lines.
+- **Improved Game State Management:** Better separation with `resetGameState()`, `clearGameElements()`, and `resetGameLogic()` methods.
+- **Package Restructuring:** Moved from `com.comp2042` to `com.comp2042.controller` for better architectural organization.
+
+#### 4. `InputEventListener`
+
+**Original Role:**  
+Basic interface for handling core Tetris input events (`down`, `left`, `right`, `rotate`) and new game creation.
+
+**Changes Made in Refactored Version:**
+
+- **Expanded Event Types:** Added methods for hard drop (`onHardDropEvent`) and hold piece (`onHoldEvent`) functionality.
+- **Ghost Piece Support:** Added `getGhostPiece()` method to retrieve ghost piece visualization data.
+- **Game State Queries:** Added methods to retrieve current game statistics: `getScore()`, `getTotalLinesCleared()`, and `getLevel()`.
+- **Package Restructuring:** Moved from `com.comp2042` to `com.comp2042.controller` for better architectural organization.
+
+#### 5. `EventType enum` 
+
+**Original Role:**  
+Basic enum representing the four core movement types in Tetris: `DOWN`, `LEFT`, `RIGHT`, and `ROTATE`.
+
+**Changes Made in Refactored Version:**
+
+- **Expanded Event Types:** Added two new event types to support modern Tetris features:
+    - `HARDDROP`: Represents a hard drop event where the piece instantly falls to the bottom.
+    - `HOLD`: Represents a hold event where the current piece is stored for later use.
+    - 
+#### 6. `DownData`
+
+**Original Role:**  
+Simple data class containing information about cleared rows and view data after a brick moves down.
+
+**Changes Made in Refactored Version:**
+
+- Added a new field `gameOver` and corresponding getter `isGameOver()` to indicate whether the move resulted in a game-over condition.
+- Changed the `viewData` field type from `ViewData` to `BoardViewData` for better clarity.
+
+#### 7. `ViewData`
+
+**Original Role (ViewData):**  
+Simple data class containing basic information about the current brick and the next brick.
+
+**Changes Made in Refactored Version:**
+
+- **Class Renaming:** Changed from `ViewData` to `BoardViewData` to clarify its role in the view layer.
+- **Expanded Data Storage:** Now supports the next three bricks (`nextThreeData`) instead of just one.
+- **Hold Feature Support:** Added `holdBrickData` to store the currently held brick shape.
+- **Ghost Piece Support:** Added `ghost` flag and a dedicated constructor for ghost pieces.
+- **Constructors:** Main constructor handles next three bricks and held brick; a separate constructor is used for ghost pieces.
+- **Additional Methods:**
+    - `isGhost()` – returns true if the data represents a ghost piece
+    - `getNextThreeData()` – retrieves the next three brick shapes
+    - `getHoldBrickData()` – retrieves the held brick shape
+- **Package Restructuring:** Moved from `com.comp2042` to `com.comp2042.view`.
+
+#### 8. `Main`
+**Original Role:**  
+Basic JavaFX application entry point that directly loaded the game interface and started the game immediately.
+
+**Changes Made in Refactored Version:**
+
+- **Home Screen Integration:** Added a home screen (`HomeScreen.create()`) that appears before the game starts, improving user experience.
+- **Improved Scene Management:** Separated game initialization into `startGame()` method for a clean transition from the home screen to the game.
+- **Enhanced Window Size:** Adjusted `primaryStage.setScene(new Scene(root, 1000, 720))` for better layout.
+
+
+
+
+
+## Design Patterns
+
+### 1. Observer Pattern
+
+The project also uses **event delegation**, a form of the **Observer pattern**, to handle user input:
+
+- **InputHandler**  
+  Listens to keyboard events and forwards them to the game logic:
+    - Handles movement, rotation, hard drop, and hold actions
+    - Handles pause, new game, and game-over states
+-InputHandler acts as an observer of key events. It **delegates actions** to `InputEventListener` and `GuiController`, separating input concerns from game logic and rendering. This ensures that changes in input handling do not affect the rest of the game logic.
+
+
+### 2.Facade Pattern
+
+- **GameRenderer**  
+  The `GameRenderer` class acts as a facade for all game rendering operations. Rendering the Tetris board involves several tasks, such as:
+    - Creating `Rectangle` objects for each block
+    - Adding them to `GridPane`s
+    - Managing positions of the current brick, ghost piece, next pieces, and held piece
+    - Setting colors and opacity
+
+  Instead of having the game logic deal with these details, `GameRenderer` provides a **single, unified interface** with high-level methods:
+    - `refreshBrick()`
+    - `refreshGhost()`
+    - `updateHoldPiece()`
+    - `refreshGameBackground()`
+
+  This encapsulation hides the complexity of JavaFX UI manipulation, allowing other classes to update the game display simply by calling these methods.
+
+- **HighScoreManager**  
+  The `HighScoreManager` class acts as a **facade** for the high score subsystem. Managing high scores involves several underlying tasks, such as:
+    - Accessing the `HighScore` model
+    - Comparing the current score with the saved high score
+    - Saving the new high score if it is higher
+    - Updating the UI label to display the current high score
+
+  Instead of having other parts of the game deal with these details, `HighScoreManager` provides a **single, unified interface** with high-level methods:
+    - `updateHighScoreDisplay()`
+    - `saveIfHigher(int score)`
+
+  By encapsulating all high score logic, it **hides the persistence and update complexity**, allowing other classes to manage high scores simply by calling these facade methods.
 
 ## Testing
 
@@ -331,15 +489,11 @@ Unit tests were created for the following parts of the system:
 - **BoardViewData** – correct mapping of board state
 
 ## Running Tests
-
-To run the tests:
-
 1. Open a terminal in the project root directory.
 2. Run the following command:
 
    ```bash 
    mvn test
-   
 ## Bugs faced and fixed
 
 1. **Speed and Level Progression Mismatch**
@@ -356,12 +510,17 @@ To run the tests:
 
 - **Solution:** Validated positions in spawnRandomGarbageBlocks() to ensure blocks spawn only where no active piece is located.
 
+3. **Game over happened mid board**
+
+- **Issue:** There was a bug in the original code where the game over occurred mid board.
+- **Solution:** Change the y value of the `createNewBrick` method that was in `SimpleBoard` class.
+
 
 
    
 ## Planned features but not implemented
 
-- **Audio Integration (Planned but Removed)**
+1. **Audio Integration**
     - Initially attempted to add background music to enhance gameplay.
     - Tried using an MP4 file but encountered compatibility issues; eventually considered WAV format for better support.
     - Implemented basic playback, but several challenges arose:
@@ -369,5 +528,11 @@ To run the tests:
         - Adding audio increased the responsibilities of `GUIController`, which conflicted with single responsibility principles.
         - Limited time prevented implementing additional features such as volume control, pause/resume music, or dedicated audio buttons.
     - Decision: Removed audio integration to maintain code simplicity and focus on core gameplay features.
+  
+  
+2. **Bomb bricks**
+- The idea was to create special bricks that, when placed or cleared, would remove surrounding blocks to add a strategic element to the game.  
+- However, due to **time constraints** and **technical challenges**, this feature was not implemented. Some of the issues encountered included:
+  - Handling the explosion logic and ensuring it updated both the game board and the UI correctly.
+  - Ensuring consistent collision detection and board updates without introducing bugs or crashes.  
 
-   
