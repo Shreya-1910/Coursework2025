@@ -24,8 +24,7 @@ The primary focus of the project was to demonstrate:
 
 - Maintainable software design
 - Clean separation of concerns
-- Modular and scalable architecture
-- Use of refactoring techniques to improve legacy-style code
+- Use of refactoring techniques to improve code
 - Add additional features
 
 ## Github Repository
@@ -64,15 +63,15 @@ The project enhances the traditional Tetris experience by introducing multiple g
 
    When the player presses the *hold key* (**C** key):
 
-    - The currently active tetromino is moved into the **hold slot**.
-    - The next tetromino from the **piece queue** immediately becomes the new active piece.
+    - The currently active piece is moved into the **hold slot**.
+    - The next piece from the **piece queue** immediately becomes the new active piece.
     - Because the hold slot was previously empty, **no swapping occurs** during the first use.
 
    This allows the player to defer using an unfavourable piece without losing game flow.
 
    1.2 **Subsequent Holds**
 
-   On later uses of the hold function, if a tetromino is already stored:
+   On later uses of the hold function, if a piece is already stored:
 
     - The current falling piece is **swapped** with the piece in the hold slot.
     - The swapped-in piece is reset to its **default spawn position** and **default rotation state**.
@@ -85,7 +84,7 @@ The project enhances the traditional Tetris experience by introducing multiple g
    To maintain balance and prevent infinite swapping:
 
     - The player can only use the hold function **once per piece drop**.
-    - A boolean flag (e.g. `hasHeldThisTurn`) disables multiple holds during the same turn.
+    - A boolean flag (`hasHeldThisTurn`) disables multiple holds during the same turn.
     - The hold ability is only **re-enabled after the current piece locks into the grid**.
 
    1.4 **Why This Feature Matters**
