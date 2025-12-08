@@ -19,8 +19,5 @@
  * This package provides the core building blocks for Tetris gameplay, defining
  * both the shapes and rotation matrices of all bricks and enabling the game
  * to generate new bricks dynamically.
- *
- * @author Shreya
- * @version 1.0
  */
 package com.comp2042.logic.bricks;

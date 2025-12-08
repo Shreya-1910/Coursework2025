@@ -12,8 +12,5 @@
  * <p>
  * This package separates the presentation layer from the game logic, ensuring
  * that UI rendering and game state management are decoupled.
- *
- * @author Shreya
- * @version 1.0
  */
 package com.comp2042.view;

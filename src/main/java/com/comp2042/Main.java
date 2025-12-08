@@ -42,10 +42,9 @@ public class Main extends Application {
             Parent root = loader.load();
             GuiController gui = loader.getController();
 
-            // Create game controller AFTER the GUI is loaded
             new GameController(gui);
 
-            primaryStage.setScene(new Scene(root, 1000, 510));
+            primaryStage.setScene(new Scene(root, 1000, 720));
 
         } catch (Exception e) {
             e.printStackTrace();

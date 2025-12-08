@@ -18,8 +18,5 @@
  * <p>
  * This package acts as the bridge between the model (game state) and the view (UI),
  * coordinating gameplay, user actions, and visual updates.
- *
- * @author Shreya
- * @version 1.0
  */
 package com.comp2042.controller;

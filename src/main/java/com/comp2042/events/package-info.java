@@ -11,8 +11,5 @@
  * <p>
  * This package provides the foundation for handling user input, game state changes,
  * and other actions in a structured and modular way.
- *
- * @author Shreya
- * @version 1.0
  */
 package com.comp2042.events;
