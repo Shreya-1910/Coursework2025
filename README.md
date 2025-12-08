@@ -24,8 +24,7 @@ The primary focus of the project was to demonstrate:
 
 - Maintainable software design
 - Clean separation of concerns
-- Modular and scalable architecture
-- Use of refactoring techniques to improve legacy-style code
+- Use of refactoring techniques to improve code
 - Add additional features
 
 ## Github Repository
@@ -36,16 +35,29 @@ The primary focus of the project was to demonstrate:
 
 This project is built using **Maven** and **JavaFX**.
 
-### Requirements
-- **Java JDK 23** installed
-- **Maven** 
+## Requirements
+- **Java JDK 23**
+- **Maven**
+- **JavaFX SDK**
 
-### Steps to Run
+## Steps to Run
+
+### Option 1: Run using Maven (Recommended)
+
 1. Clone the repository from the link above.
-2. Open the project as a maven project in Intellij.
-3. Under file, project structure, libraries set JDK to Java 23.
-4. Click on the Maven toolbar on the right side panel and navigate to plugins->javafx->javafx:run
-5. Click run.
+2. Open the project in **IntelliJ IDEA** as a **Maven project**.
+3. Go to **File → Project Structure → Project** and set the **Project SDK** to **Java 23**.
+4. Open the **Maven** tool window on the right sidebar.
+5. Navigate to **Plugins → javafx → javafx:run**.
+6. Double-click `javafx:run` to start the application.
+
+### Option 2: Run using the Main Class
+
+You can also run the project directly using the `Main` class, but **JavaFX must be configured manually**:
+
+1. Ensure the **JavaFX SDK** is downloaded.
+2. In IntelliJ, go to **Run → Edit Configurations**.
+3. Add the following VM options: --module-path /path/to/javafx/lib --add-modules javafx.controls,javafx.fxml
 
 
 ## Features and Additions
@@ -64,15 +76,15 @@ The project enhances the traditional Tetris experience by introducing multiple g
 
    When the player presses the *hold key* (**C** key):
 
-    - The currently active tetromino is moved into the **hold slot**.
-    - The next tetromino from the **piece queue** immediately becomes the new active piece.
+    - The currently active piece is moved into the **hold slot**.
+    - The next piece from the **piece queue** immediately becomes the new active piece.
     - Because the hold slot was previously empty, **no swapping occurs** during the first use.
 
    This allows the player to defer using an unfavourable piece without losing game flow.
 
    1.2 **Subsequent Holds**
 
-   On later uses of the hold function, if a tetromino is already stored:
+   On later uses of the hold function, if a piece is already stored:
 
     - The current falling piece is **swapped** with the piece in the hold slot.
     - The swapped-in piece is reset to its **default spawn position** and **default rotation state**.
@@ -85,7 +97,7 @@ The project enhances the traditional Tetris experience by introducing multiple g
    To maintain balance and prevent infinite swapping:
 
     - The player can only use the hold function **once per piece drop**.
-    - A boolean flag (e.g. `hasHeldThisTurn`) disables multiple holds during the same turn.
+    - A boolean flag (`hasHeldThisTurn`) disables multiple holds during the same turn.
     - The hold ability is only **re-enabled after the current piece locks into the grid**.
 
    1.4 **Why This Feature Matters**
@@ -494,6 +506,11 @@ Unit tests were created for the following parts of the system:
 
    ```bash 
    mvn test
+Alternatively, you can use **IntelliJ IDEA’s built-in test runner**.
+Open the project in IntelliJ, navigate to the test classes inside `src/test/java`, 
+right-click on the test class or method 
+and select **Run 'TestClassName'**. IntelliJ will automatically compile and execute the tests and display the results in the **Run** window.
+
 ## Bugs faced and fixed
 
 1. **Speed and Level Progression Mismatch**
