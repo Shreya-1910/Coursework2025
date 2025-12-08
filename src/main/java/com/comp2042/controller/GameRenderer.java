@@ -1,11 +1,11 @@
 package com.comp2042.controller;
 
+import com.comp2042.model.BlockType;
 import com.comp2042.view.BoardViewData;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
-import java.util.List;
 
 /**
  * Handles the rendering of the game ui such as the drawing of the game board,
@@ -86,41 +86,9 @@ public class GameRenderer {
      * @return a {@link Paint} object representing the fill color for the brick
      */
     public Paint getFillColor(int i) {
-        Paint returnPaint;
-        switch (i) {
-            case 0:
-                returnPaint = Color.TRANSPARENT;
-                break;
-            case 1:
-                returnPaint = Color.AQUA;
-                break;
-            case 2:
-                returnPaint = Color.ORANGE;
-                break;
-            case 3:
-                returnPaint = Color.DARKGREEN;
-                break;
-            case 4:
-                returnPaint = Color.YELLOW;
-                break;
-            case 5:
-                returnPaint = Color.RED;
-                break;
-            case 6:
-                returnPaint = Color.BEIGE;
-                break;
-            case 7:
-                returnPaint = Color.BURLYWOOD;
-                break;
-            case GARBAGE_BLOCK_VALUE:
-                returnPaint = Color.BLACK;
-                break;
-            default:
-                returnPaint = Color.WHITE;
-                break;
-        }
-        return returnPaint;
+        return BlockType.fromValue(i);
     }
+
 
     /**
      * clears ghost pieces by resetting its opacity to 1.
