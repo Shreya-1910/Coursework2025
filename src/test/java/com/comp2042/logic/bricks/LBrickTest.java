@@ -37,7 +37,6 @@ class LBrickTest {
             }
         }
 
-        // Optional: verify deep copy (modifying returned shape should not affect original)
         int[][] firstShape = shapes.get(0);
         firstShape[1][1] = 99; // Modify the copy
         List<int[][]> shapes2 = lBrick.getShapeMatrix();

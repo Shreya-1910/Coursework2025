@@ -17,20 +17,15 @@ class HighScoreManagerTest {
 
     @BeforeAll
     static void initJavaFX() {
-        // Start JavaFX Toolkit once
         Platform.startup(() -> {});
     }
 
     @BeforeEach
     void setUp() throws Exception {
-        // Create temporary file for high score
         tempFile = File.createTempFile("highscore_test", ".txt");
         tempFile.deleteOnExit();
 
-        // Redirect HighScore to temp file
         HighScore.setFileName(tempFile.getAbsolutePath());
-
-        // Setup Label and manager
         label = new Label();
         manager = new HighScoreManager(label);
     }
@@ -68,7 +63,6 @@ class HighScoreManagerTest {
         assertEquals("200", readFile(tempFile)); // File remains unchanged
     }
 
-    // Utility method to read temp file
     private static String readFile(File f) {
         try (BufferedReader br = new BufferedReader(new FileReader(f))) {
             return br.readLine().trim();

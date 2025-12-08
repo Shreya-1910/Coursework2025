@@ -19,7 +19,6 @@ class TBrickTest {
 
     @AfterEach
     void tearDown() {
-        // No resources to clean up
     }
 
     @Test

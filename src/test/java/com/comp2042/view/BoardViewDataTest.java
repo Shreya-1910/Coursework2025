@@ -92,7 +92,7 @@ class BoardViewDataTest {
         List<int[][]> copiedList = boardViewData.getNextThreeData();
         assertNotNull(copiedList);
         assertEquals(3, copiedList.size());
-        assertNotSame(nextThreeData, copiedList); // Ensure it's a deep copy
+        assertNotSame(nextThreeData, copiedList);
 
         // Modify the original list and ensure copied list remains unchanged
         nextThreeData.get(0)[0][0] = 99;

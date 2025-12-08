@@ -37,7 +37,6 @@ class IBrickTest {
             }
         }
 
-        // Optional: Check the first orientation matches expected
         int[][] expectedFirst = {
                 {0, 0, 0, 0},
                 {1, 1, 1, 1},
@@ -49,7 +48,6 @@ class IBrickTest {
             assertArrayEquals(expectedFirst[r], actualFirst[r], "Row " + r + " does not match expected");
         }
 
-        // Optional: Check the second orientation matches expected
         int[][] expectedSecond = {
                 {0, 1, 0, 0},
                 {0, 1, 0, 0},

@@ -19,7 +19,6 @@ class ZBrickTest {
 
     @AfterEach
     void tearDown() {
-        // No resources to clean up
     }
 
     @Test

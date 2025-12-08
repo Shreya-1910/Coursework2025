@@ -1,13 +1,10 @@
 package com.comp2042.controller;
 
-import com.comp2042.view.BoardViewData;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -118,7 +115,6 @@ class GameRendererTest {
         assertEquals(Color.ORANGE, displayMatrix[3][1].getFill());
         assertEquals(Color.BLACK, displayMatrix[4][2].getFill());
 
-        // Check arc settings
         assertEquals(9, displayMatrix[2][0].getArcHeight(), 0.001);
         assertEquals(9, displayMatrix[2][0].getArcWidth(), 0.001);
     }

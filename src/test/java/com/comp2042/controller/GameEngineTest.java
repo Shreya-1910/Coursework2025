@@ -15,9 +15,7 @@ class GameEngineTest {
 
     @BeforeEach
     void setUp() {
-        // Create a small deterministic board for testing
         engine = new GameEngine(20, 10);
-        // Inject deterministic Random for predictable garbage
         engine.getClass().getDeclaredFields();
         engine.getClass().getDeclaredFields();
         engine.getClass().getDeclaredFields();
@@ -26,7 +24,7 @@ class GameEngineTest {
 
     @Test
     void testNewGameResetsState() {
-        engine.moveDown(null); // simulate some moves
+        engine.moveDown(null);
         engine.hardDrop();
         engine.newGame();
 
