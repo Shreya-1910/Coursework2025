@@ -26,12 +26,12 @@ class BrickRotatorTest {
                 );
             }
         };
-        brickRotator.setBrick(mockBrick); // Assign the brick to the rotator
+        brickRotator.setBrick(mockBrick);
     }
 
     @Test
     void testGetCurrentShapeInitial() {
-        // Test the initial shape (rotation index should be 0)
+        // Test the initial shape
         int[][] currentShape = brickRotator.getCurrentShape();
         int[][] expectedShape = mockBrick.getShapeMatrix().get(0);
         assertArrayEquals(expectedShape, currentShape, "The initial shape should match the first shape in the matrix.");
@@ -54,8 +54,6 @@ class BrickRotatorTest {
         int[][] currentShape = brickRotator.getCurrentShape();
         int[][] expectedShape = mockBrick.getShapeMatrix().get(2);
         assertArrayEquals(expectedShape, currentShape, "The current shape should be the third shape in the matrix.");
-
-        // Call getNextShape, it should wrap around to index 0
         NextShapeInfo nextShapeInfo = brickRotator.getNextShape();
         int[][] nextShape = nextShapeInfo.getShape();
         expectedShape = mockBrick.getShapeMatrix().get(0);

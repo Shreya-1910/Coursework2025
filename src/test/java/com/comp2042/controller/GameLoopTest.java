@@ -52,7 +52,7 @@ class GameLoopTest {
 
         assertFalse(gameLoop.isRunning());
         Timeline timeline = (Timeline) getPrivateField(gameLoop, "timeline");
-        assertNull(timeline); // timeline set to null in stop()
+        assertNull(timeline);
     }
 
     @Test
@@ -83,14 +83,12 @@ class GameLoopTest {
 
     @Test
     void tick_triggersMoveDown() throws Exception {
-        // Directly invoke tick via reflection to avoid timing issues
         Method tickMethod = GameLoop.class.getDeclaredMethod("tick");
         tickMethod.setAccessible(true);
         tickMethod.invoke(gameLoop);
 
         assertEquals(1, mockController.moveDownCount);
 
-        // Call tick again to confirm multiple ticks
         tickMethod.invoke(gameLoop);
         assertEquals(2, mockController.moveDownCount);
     }
@@ -112,7 +110,6 @@ class GameLoopTest {
         assertFalse(gameLoop.isRunning());
     }
 
-    // ===== Helper classes =====
     private static class TestGuiController extends GuiController {
         int moveDownCount = 0;
 
